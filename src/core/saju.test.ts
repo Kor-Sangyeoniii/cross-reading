@@ -11,9 +11,17 @@ describe('computeSaju', () => {
   it('알려진 날짜의 원국 (manseryeok 문서 예시)', () => {
     const r = computeSaju(solar(1992, 10, 24, { hour: 5, minute: 30 }), NOW)
     expect(r.pillars).toEqual({ year: '임신', month: '경술', day: '계유', hour: '을묘' })
-    expect(r.dayMaster).toEqual({ stem: '계', element: '수' })
+    expect(r.dayMaster).toEqual({ stem: '계', element: '수', yinYang: '음', hanja: '癸水', label: '계수(癸水)' })
+    expect(r.pillarsHanja).toEqual({ year: '壬申', month: '庚戌', day: '癸酉', hour: '乙卯' })
+    expect(r.tenGods.year).toEqual({ stem: '겁재', branch: '정인' })
+    expect(r.tenGods.day).toEqual({ branch: '편인' })
+    expect(r.tenGods.hour).toEqual({ stem: '식신', branch: '식신' })
     expect(r.hourKnown).toBe(true)
     expect(Object.values(r.elements).reduce((a, b) => a + b, 0)).toBe(8)
+    expect(r.cells.map((c) => c.title)).toEqual(['시주', '일주', '월주', '연주'])
+    expect(r.cells[1].stem).toEqual({ ko: '계', hanja: '癸', element: '수', yinYang: '음', tenGod: '일간' })
+    expect(r.cells[0].stem).toEqual({ ko: '을', hanja: '乙', element: '목', yinYang: '음', tenGod: '식신' })
+    expect(r.cells[3].branch).toEqual({ ko: '신', hanja: '申', element: '금', yinYang: '양', tenGod: '정인' })
   })
 
   it('lunar-javascript 교차 검증 사례와 일치', () => {
@@ -37,6 +45,9 @@ describe('computeSaju', () => {
   it('출생시간을 모르면 시주 없이 6글자로 센다', () => {
     const r = computeSaju(solar(1992, 10, 24, null), NOW)
     expect(r.pillars.hour).toBeNull()
+    expect(r.pillarsHanja.hour).toBeNull()
+    expect(r.tenGods.hour).toBeNull()
+    expect(r.cells.map((c) => c.pillar)).toEqual(['day', 'month', 'year'])
     expect(r.hourKnown).toBe(false)
     expect(Object.values(r.elements).reduce((a, b) => a + b, 0)).toBe(6)
     expect(r.yearMonthUncertain).toBe(false)
