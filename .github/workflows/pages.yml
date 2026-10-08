@@ -8,16 +8,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     env:
       VITE_BASE: /cross-reading/
@@ -35,19 +33,11 @@ jobs:
       - run: npm run build
       # /me, /invite/... 같은 주소로 바로 들어와도 앱이 열리도록 (GitHub Pages는 없는 경로에 404.html을 보여준다)
       - run: cp dist/index.html dist/404.html
-      - uses: actions/configure-pages@v5
+      # GitHub Pages는 gh-pages 브랜치를 보여준다. 빌드 결과를 그 브랜치에 올린다.
+      - run: touch dist/.nojekyll
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          publish_branch: gh-pages
+          force_orphan: true
