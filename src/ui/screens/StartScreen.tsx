@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { startLogin, type LoginProvider } from '../../lib/auth'
+import { stripBase } from '../../lib/basePath'
 
 // 01 시작 + 07 로그인 (처음부터 로그인 — 확정). 초대 링크로 들어온 경우 같은 화면에서 초대 안내를 먼저 보여준다.
 
@@ -10,7 +11,7 @@ export function StartScreen({ invited }: { invited?: boolean }) {
   async function login(provider: LoginProvider) {
     setNotice('')
     setBusy(provider)
-    const result = await startLogin(provider, window.location.pathname + window.location.search)
+    const result = await startLogin(provider, stripBase(window.location.pathname) + window.location.search)
     if (result.kind === 'open-external') {
       if (result.url) window.location.href = result.url
       setNotice('구글 로그인은 카카오톡 안에서 열 수 없어요. 오른쪽 위 메뉴에서 ‘다른 브라우저로 열기’를 눌러 주세요.')

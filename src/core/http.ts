@@ -2,7 +2,8 @@
 // 허용 헤더는 supabase-js 2.117의 corsHeaders 목록과 같게 맞춘다.
 // 허용 주소 목록에 있는 출처(origin)에만 Access-Control-Allow-Origin을 돌려준다. '*'는 쓰지 않는다.
 
-export const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:5173']
+// 시크릿 ALLOWED_ORIGINS가 없을 때 쓰는 기본 허용 주소: 개발 서버 + GitHub Pages 배포 주소
+export const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:5173', 'https://kor-sangyeoniii.github.io']
 
 export function parseAllowedOrigins(value: string | undefined): string[] {
   const list = (value ?? '').split(',').map((s) => s.trim()).filter((s) => /^https?:\/\/[^/]+$/.test(s))

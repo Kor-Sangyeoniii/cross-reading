@@ -1,0 +1,53 @@
+# main에 합쳐질 때마다 앱을 GitHub Pages(https://kor-sangyeoniii.github.io/cross-reading/)에 올린다. 비용 없음(공개 저장소).
+# 아래 VITE_ 값은 브라우저에 원래 공개되는 값(공개 키)만 둔다. 비밀키는 절대 넣지 않는다 (AGENTS.md P3).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_BASE: /cross-reading/
+      VITE_SUPABASE_URL: https://bfntkulpspknuuwmnhfx.supabase.co
+      VITE_SUPABASE_ANON_KEY: sb_publishable__xUHBhmdF2jfu6n6RWdsnQ_urLdDuQH
+      VITE_VAPID_PUBLIC_KEY: BNTD0VLfZZM7OQc_aIb76UWdD3fhXj31cq8tpby5mEp8C-wFQAvwXjQetT4I0LNx4NUCko89MnWxEKSQEDVL8ZE
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      # /me, /invite/... 같은 주소로 바로 들어와도 앱이 열리도록 (GitHub Pages는 없는 경로에 404.html을 보여준다)
+      - run: cp dist/index.html dist/404.html
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
