@@ -85,6 +85,22 @@ function validateTime(time: BirthTime | null) {
   }
 }
 
+/** 입력(양력·음력)을 양력 날짜 'YYYY-MM-DD'로 바꾼다. 없는 날짜·윤달은 SajuInputError. */
+export function toSolarDate(input: BirthInput): string {
+  let solar: { year: number; month: number; day: number }
+  try {
+    solar =
+      input.calendar === 'lunar'
+        ? lunarToSolar(input.year, input.month, input.day, Boolean(input.isLeapMonth))
+        : { year: input.year, month: input.month, day: input.day }
+  } catch (e) {
+    if (e instanceof RangeError) throw new SajuInputError(e.message)
+    throw e
+  }
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${solar.year}-${pad(solar.month)}-${pad(solar.day)}`
+}
+
 export function computeSaju(input: BirthInput, now: Date = new Date()): SajuChart {
   validateTime(input.time)
   const main = calc(input, input.time ?? NOON)
@@ -96,11 +112,8 @@ export function computeSaju(input: BirthInput, now: Date = new Date()): SajuChar
     yearMonthUncertain = !sameLabel(start.year, end.year) || !sameLabel(start.month, end.month)
   }
 
-  const solar =
-    input.calendar === 'lunar'
-      ? lunarToSolar(input.year, input.month, input.day, Boolean(input.isLeapMonth))
-      : { year: input.year, month: input.month, day: input.day }
-  if (new Date(solar.year, solar.month - 1, solar.day).getTime() > now.getTime()) {
+  const [sy, sm, sd] = toSolarDate(input).split('-').map(Number)
+  if (new Date(sy, sm - 1, sd).getTime() > now.getTime()) {
     throw new SajuInputError('미래 날짜는 입력할 수 없습니다.')
   }
 

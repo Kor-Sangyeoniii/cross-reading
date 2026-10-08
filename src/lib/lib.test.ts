@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { detectInAppBrowser, kakaoOpenExternalUrl } from './inapp'
-import { ProfileInputError, toProfileRow, type ProfileInput } from './profile'
+import { isAtLeast14, ProfileInputError, toProfileRow, type ProfileInput } from './profile'
 import { rememberReturnTo, sanitizeReturnTo, takeReturnTo } from './redirect'
 import { SajuInputError } from '../core/saju'
 
@@ -61,7 +61,7 @@ describe('toProfileRow', () => {
     const row = toProfileRow('user-1', base, NOW)
     expect(row).toMatchObject({
       id: 'user-1', nickname: '지민', birth_hour: null, birth_minute: null, mbti: null,
-      is_leap_month: false, age_14_confirmed: true, marketing_agreed_at: null,
+      is_leap_month: false, age_14_confirmed: true, marketing_agreed_at: null, solar_birth_date: '1995-03-14',
     })
   })
 
@@ -79,5 +79,28 @@ describe('toProfileRow', () => {
 
   it('없는 날짜는 사주 검사에서 거부', () => {
     expect(() => toProfileRow('u', { ...base, birth: { ...base.birth, month: 2, day: 30 } }, NOW)).toThrow(SajuInputError)
+  })
+})
+
+describe('양력 날짜·만 14세', () => {
+  it('음력 입력은 양력 날짜로 저장한다 (manseryeok 문서 예시: 음력 1992-09-29 = 양력 1992-10-24)', () => {
+    const row = toProfileRow('u', {
+      nickname: '지민', mbti: null,
+      birth: { year: 1992, month: 9, day: 29, calendar: 'lunar', time: null },
+      consents: { age14OrOlder: true, terms: true, privacy: true, marketing: false },
+    }, NOW)
+    expect(row.solar_birth_date).toBe('1992-10-24')
+  })
+  it('한국 날짜 기준 생일 당일부터 만 14세', () => {
+    const now = new Date('2026-10-08T00:30:00+09:00')
+    expect(isAtLeast14('2012-10-08', now)).toBe(true)
+    expect(isAtLeast14('2012-10-09', now)).toBe(false)
+  })
+  it('만 14세 미만 생년월일은 체크를 해도 거부', () => {
+    expect(() => toProfileRow('u', {
+      nickname: '지민', mbti: null,
+      birth: { year: 2015, month: 1, day: 1, calendar: 'solar', time: null },
+      consents: { age14OrOlder: true, terms: true, privacy: true, marketing: false },
+    }, NOW)).toThrow(ProfileInputError)
   })
 })
