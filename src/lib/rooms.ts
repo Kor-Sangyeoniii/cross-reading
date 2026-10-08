@@ -59,6 +59,13 @@ export async function createRoom(share: ShareChoice): Promise<{ roomId: string; 
   return { roomId: data[0].room_id, inviteToken: data[0].invite_token }
 }
 
+/** 기존 방의 새 초대 링크 토큰 (구성원만, 4명이 차면 거부). 원문 토큰은 이때 한 번만 받는다. */
+export async function createInvite(roomId: string): Promise<string> {
+  const { data, error } = await client().rpc('create_invite', { p_room: roomId })
+  if (error || !data) throw toAppError(error)
+  return data as string
+}
+
 export async function previewInvite(token: string): Promise<InvitePreview | null> {
   const { data, error } = await client().rpc('preview_invite', { p_token: token })
   if (error) throw toAppError(error)

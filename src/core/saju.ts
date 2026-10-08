@@ -83,6 +83,11 @@ export interface SajuChart {
   yearMonthUncertain: boolean
 }
 
+/** 라이브러리 오류 원문에는 입력한 날짜가 들어 있으므로 고정 문구로 바꾼다 (AGENTS.md P1). */
+function fixedRangeMessage(e: RangeError): string {
+  return /윤/.test(e.message) ? '그 해에는 해당 윤달이 없어요.' : '날짜를 다시 확인해 주세요.'
+}
+
 export class SajuInputError extends Error {
   constructor(message: string) {
     super(message)
@@ -118,7 +123,7 @@ function calc(input: BirthInput, time: BirthTime): FourPillarsDetail {
   try {
     return calculateFourPillars(toInfo(input, time))
   } catch (e) {
-    if (e instanceof RangeError) throw new SajuInputError(e.message)
+    if (e instanceof RangeError) throw new SajuInputError(fixedRangeMessage(e))
     throw e
   }
 }
@@ -143,11 +148,16 @@ export function toSolarDate(input: BirthInput): string {
         ? lunarToSolar(input.year, input.month, input.day, Boolean(input.isLeapMonth))
         : { year: input.year, month: input.month, day: input.day }
   } catch (e) {
-    if (e instanceof RangeError) throw new SajuInputError(e.message)
+    if (e instanceof RangeError) throw new SajuInputError(fixedRangeMessage(e))
     throw e
   }
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${solar.year}-${pad(solar.month)}-${pad(solar.day)}`
+}
+
+/** 한국 시간 기준 오늘 'YYYY-MM-DD' (서비스 기준 시간대) */
+export function seoulToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
 }
 
 export function computeSaju(input: BirthInput, now: Date = new Date()): SajuChart {
@@ -161,8 +171,7 @@ export function computeSaju(input: BirthInput, now: Date = new Date()): SajuChar
     yearMonthUncertain = !sameLabel(start.year, end.year) || !sameLabel(start.month, end.month)
   }
 
-  const [sy, sm, sd] = toSolarDate(input).split('-').map(Number)
-  if (new Date(sy, sm - 1, sd).getTime() > now.getTime()) {
+  if (toSolarDate(input) > seoulToday(now)) {
     throw new SajuInputError('미래 날짜는 입력할 수 없습니다.')
   }
 

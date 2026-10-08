@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { detectInAppBrowser, kakaoOpenExternalUrl } from './inapp'
-import { isAtLeast14, ProfileInputError, toProfileRow, type ProfileInput } from './profile'
+import { isAtLeast14, ProfileInputError, toProfileEdit, toProfileRow, type ProfileInput } from './profile'
 import { rememberReturnTo, sanitizeReturnTo, takeReturnTo } from './redirect'
 import { SajuInputError } from '../core/saju'
 
@@ -102,5 +102,24 @@ describe('양력 날짜·만 14세', () => {
       birth: { year: 2015, month: 1, day: 1, calendar: 'solar', time: null },
       consents: { age14OrOlder: true, terms: true, privacy: true, marketing: false },
     }, NOW)).toThrow(ProfileInputError)
+  })
+})
+
+describe('toProfileEdit (정보 수정)', () => {
+  const edit = { nickname: '새이름', birth: { year: 1995, month: 3, day: 14, calendar: 'solar' as const, time: null }, mbti: null }
+  it('필수 동의 시각·연령 확인 칼럼을 보내지 않는다', () => {
+    const row = toProfileEdit(edit, NOW)
+    expect(row).not.toHaveProperty('terms_agreed_at')
+    expect(row).not.toHaveProperty('privacy_agreed_at')
+    expect(row).not.toHaveProperty('age_14_confirmed')
+    expect(row).not.toHaveProperty('marketing_agreed_at')
+    expect(row.nickname).toBe('새이름')
+  })
+  it('선택 동의는 지정했을 때만 바꾼다', () => {
+    expect(toProfileEdit({ ...edit, marketing: false }, NOW).marketing_agreed_at).toBeNull()
+    expect(toProfileEdit({ ...edit, marketing: true }, NOW).marketing_agreed_at).toBe(NOW.toISOString())
+  })
+  it('수정에서도 만 14세 미만 생년월일은 거부', () => {
+    expect(() => toProfileEdit({ ...edit, birth: { ...edit.birth, year: 2015 } }, NOW)).toThrow(ProfileInputError)
   })
 })

@@ -1,4 +1,5 @@
-import { computeSaju, toSolarDate, type BirthInput } from '../core/saju'
+import { computeSaju, seoulToday, toSolarDate, type BirthInput } from '../core/saju'
+import { AppError, toAppError } from './errors'
 import { supabase } from './supabase'
 
 // 내 프로필 저장·조회 (CR-003). 출생정보는 RLS로 본인만 읽는다 (CR-002).
@@ -71,7 +72,7 @@ export function toProfileRow(userId: string, input: ProfileInput, now: Date = ne
 
 /** 한국 날짜 기준 만 14세 이상인지. solar는 'YYYY-MM-DD'. */
 export function isAtLeast14(solar: string, now: Date = new Date()): boolean {
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(now) // YYYY-MM-DD
+  const today = seoulToday(now)
   const [ty, tm, td] = today.split('-').map(Number)
   const [by, bm, bd] = solar.split('-').map(Number)
   const age = ty - by - (tm < bm || (tm === bm && td < bd) ? 1 : 0)
@@ -83,19 +84,59 @@ function client() {
   return supabase
 }
 
-export async function saveMyProfile(input: ProfileInput): Promise<void> {
+/** 처음 가입할 때만: 프로필 + 필수 동의·연령 확인 기록 */
+export async function createMyProfile(input: ProfileInput): Promise<void> {
   const { data } = await client().auth.getUser()
-  if (!data.user) throw new Error('로그인이 필요합니다.')
+  if (!data.user) throw new AppError('not_authenticated')
   const row = toProfileRow(data.user.id, input)
-  const { error } = await client().from('profiles').upsert(row)
-  if (error) throw new Error(`프로필 저장 실패: ${error.message}`)
+  const { error } = await client().from('profiles').insert(row)
+  if (error) throw toAppError(error)
+}
+
+export interface ProfileEdit {
+  nickname: string
+  birth: BirthInput
+  mbti: Mbti | null
+  /** 선택 동의(소식·혜택) 변경. undefined면 그대로 둔다 */
+  marketing?: boolean
+}
+
+/** 정보 수정용 행. 필수 동의 시각·연령 확인은 포함하지 않는다(가입 때 기록한 값 유지). */
+export function toProfileEdit(edit: ProfileEdit, now: Date = new Date()) {
+  const nickname = edit.nickname.trim()
+  if (nickname.length < 1 || nickname.length > 20) throw new ProfileInputError('닉네임은 1~20자로 입력해 주세요.')
+  if (edit.mbti !== null && !MBTI_RE.test(edit.mbti)) throw new ProfileInputError('MBTI 유형이 올바르지 않아요.')
+  computeSaju(edit.birth, now)
+  const solarBirthDate = toSolarDate(edit.birth)
+  if (!isAtLeast14(solarBirthDate, now)) throw new ProfileInputError('만 14세 이상만 이용할 수 있어요.')
+  return {
+    nickname,
+    birth_year: edit.birth.year,
+    birth_month: edit.birth.month,
+    birth_day: edit.birth.day,
+    solar_birth_date: solarBirthDate, // DB가 다시 계산해 덮어쓴다 (CR-002 보완 2)
+    calendar: edit.birth.calendar,
+    is_leap_month: edit.birth.calendar === 'lunar' && Boolean(edit.birth.isLeapMonth),
+    birth_hour: edit.birth.time?.hour ?? null,
+    birth_minute: edit.birth.time?.minute ?? null,
+    mbti: edit.mbti,
+    ...(edit.marketing === undefined ? {} : { marketing_agreed_at: edit.marketing ? now.toISOString() : null }),
+  }
+}
+
+/** 정보 수정 (닉네임·생년월일·MBTI·선택 동의). DB 권한상 다른 칼럼은 바뀌지 않는다. */
+export async function updateMyProfile(edit: ProfileEdit): Promise<void> {
+  const { data } = await client().auth.getUser()
+  if (!data.user) throw new AppError('not_authenticated')
+  const { error } = await client().from('profiles').update(toProfileEdit(edit)).eq('id', data.user.id)
+  if (error) throw toAppError(error)
 }
 
 export async function getMyProfile(): Promise<MyProfile | null> {
   const { data } = await client().auth.getUser()
   if (!data.user) return null
   const { data: row, error } = await client().from('profiles').select('*').eq('id', data.user.id).maybeSingle()
-  if (error) throw new Error(`프로필 조회 실패: ${error.message}`)
+  if (error) throw toAppError(error)
   if (!row) return null
   return {
     nickname: row.nickname,
