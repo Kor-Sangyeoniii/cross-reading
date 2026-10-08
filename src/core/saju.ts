@@ -1,7 +1,13 @@
 import {
   calculateFourPillars,
+  EARTHLY_BRANCHES,
+  EARTHLY_BRANCHES_HANJA,
   getEarthlyBranchElement,
+  getEarthlyBranchYinYang,
   getHeavenlyStemElement,
+  getHeavenlyStemYinYang,
+  HEAVENLY_STEMS,
+  HEAVENLY_STEMS_HANJA,
   lunarToSolar,
   type BirthInfo,
   type FiveElement,
@@ -30,7 +36,30 @@ export interface BirthInput {
   time: BirthTime | null
 }
 
+/** 원국 한 글자 (화면에서 오행 색 칸으로 그린다) */
+export interface SajuChar {
+  ko: string
+  hanja: string
+  element: FiveElement
+  yinYang: YinYang
+  /** 십신. 일간 자리는 '일간' */
+  tenGod: TenGod | '일간'
+}
+
+export type PillarKey = 'hour' | 'day' | 'month' | 'year'
+
+/** 만세력 표의 한 기둥: 위 천간, 아래 지지 */
+export interface SajuCell {
+  pillar: PillarKey
+  /** 화면 머리글 */
+  title: '시주' | '일주' | '월주' | '연주'
+  stem: SajuChar
+  branch: SajuChar
+}
+
 export interface SajuChart {
+  /** 만세력 표 순서(시·일·월·연). 출생시간을 모르면 시주 칸은 빠진다 */
+  cells: SajuCell[]
   /** 한글 간지 두 글자. 시주는 출생시간을 모르면 null */
   pillars: { year: string; month: string; day: string; hour: string | null }
   /** 한자 간지. 시주는 출생시간을 모르면 null */
@@ -62,6 +91,14 @@ export class SajuInputError extends Error {
 }
 
 const NOON: BirthTime = { hour: 12, minute: 0 }
+const TITLES: Record<PillarKey, SajuCell['title']> = { hour: '시주', day: '일주', month: '월주', year: '연주' }
+
+function stemChar(ko: Pillar['heavenlyStem'], tenGod: TenGod | '일간'): SajuChar {
+  return { ko, hanja: HEAVENLY_STEMS_HANJA[HEAVENLY_STEMS.indexOf(ko)], element: getHeavenlyStemElement(ko), yinYang: getHeavenlyStemYinYang(ko), tenGod }
+}
+function branchChar(ko: Pillar['earthlyBranch'], tenGod: TenGod): SajuChar {
+  return { ko, hanja: EARTHLY_BRANCHES_HANJA[EARTHLY_BRANCHES.indexOf(ko)], element: getEarthlyBranchElement(ko), yinYang: getEarthlyBranchYinYang(ko), tenGod }
+}
 const ELEMENT_HANJA: Record<FiveElement, string> = { 목: '木', 화: '火', 토: '土', 금: '金', 수: '水' }
 
 function toInfo(input: BirthInput, time: BirthTime): BirthInfo {
@@ -137,7 +174,15 @@ export function computeSaju(input: BirthInput, now: Date = new Date()): SajuChar
     elements[getEarthlyBranchElement(p.earthlyBranch)] += 1
   }
 
+  const keys: PillarKey[] = input.time ? ['hour', 'day', 'month', 'year'] : ['day', 'month', 'year']
+  const cells: SajuCell[] = keys.map((k) => {
+    const p = main[k]
+    const tg = main.tenGods[k] as { stem: TenGod | '일간'; branch: TenGod }
+    return { pillar: k, title: TITLES[k], stem: stemChar(p.heavenlyStem, k === 'day' ? '일간' : tg.stem), branch: branchChar(p.earthlyBranch, tg.branch) }
+  })
+
   return {
+    cells,
     pillars: {
       year: label(main.year),
       month: label(main.month),
