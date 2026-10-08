@@ -16,6 +16,9 @@ const MESSAGES: Record<string, string> = {
   confirm_required: '계정 삭제를 한 번 더 확인해 주세요.',
   reauth_required: '안전을 위해 다시 로그인한 뒤 삭제해 주세요.',
   delete_failed: '계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.',
+  push_install_required: '아이폰은 홈 화면에 추가한 뒤에 알림을 받을 수 있어요.',
+  push_unsupported: '이 브라우저에서는 알림을 받을 수 없어요.',
+  push_denied: '알림이 꺼져 있어요. 휴대폰 설정에서 알림을 허용해 주세요.',
 }
 
 const DEFAULT_MESSAGE = '잠시 후 다시 시도해 주세요.'

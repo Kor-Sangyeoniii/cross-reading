@@ -1,5 +1,6 @@
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { AppError, toAppError } from './errors'
+import { notifyRoom } from './push'
 import { supabase } from './supabase'
 
 // 그룹 채팅·차단·신고 데이터 계층 (CR-010).
@@ -62,11 +63,17 @@ export async function listMessages(roomId: string, opts: { beforeId?: number; li
   return (data as MessageRow[]).map(toMessage).reverse()
 }
 
-/** 메시지 보내기. 사용자가 직접 누를 때만 호출한다(자동 전송 없음). */
-export async function sendMessage(roomId: string, senderId: string, body: string): Promise<void> {
+/** 메시지 보내기. 사용자가 직접 누를 때만 호출한다(자동 전송 없음). 보낸 뒤 같은 방 사람들에게 알림을 요청한다. */
+export async function sendMessage(roomId: string, senderId: string, body: string): Promise<number> {
   const text = normalizeMessage(body)
-  const { error } = await client().from('messages').insert({ room_id: roomId, sender_id: senderId, body: text })
-  if (error) throw toAppError(error)
+  const { data, error } = await client()
+    .from('messages')
+    .insert({ room_id: roomId, sender_id: senderId, body: text })
+    .select('id')
+    .single()
+  if (error || !data) throw toAppError(error)
+  void notifyRoom(data.id)
+  return data.id
 }
 
 /** 새 메시지 실시간 수신. RLS가 적용되어 구성원이 아니거나 내가 차단한 사람의 메시지는 오지 않는다. 반환값으로 구독 해제. */
