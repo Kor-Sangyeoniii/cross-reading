@@ -1,0 +1,69 @@
+.chart {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 24px 16px;
+  background: #faf8f4;
+  color: #28313b;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.chart *, .chart *::before, .chart *::after { box-sizing: border-box; }
+.title { margin: 0 0 18px; font-size: 22px; font-weight: 600; }
+.summary, .distribution {
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+}
+.summary { margin-bottom: 20px; }
+.summary p { margin: 0; }
+.summary p:first-child { font-size: 18px; }
+.summary .description { margin-top: 4px; color: #566371; font-size: 13px; }
+.notices { margin: -4px 0 18px; padding: 12px; border-radius: 12px; background: #ede9fa; color: #493b70; font-size: 13px; }
+.notices p { margin: 0; }
+.notices p + p { margin-top: 6px; }
+.pillars { display: grid; gap: 10px; }
+.pillar { display: flex; flex-direction: column; gap: 8px; min-width: 0; text-align: center; }
+.pillarTitle { margin: 0; font-size: 13px; font-weight: 600; color: #566371; }
+.tenGod { min-height: 18px; color: #566371; font-size: 12px; }
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 84px;
+  aspect-ratio: 1 / 1.08;
+  padding: 8px 2px;
+  border: 2px solid var(--element-border, var(--element-color));
+  border-radius: 12px;
+  background: var(--element-color);
+  color: var(--element-text, #fff);
+}
+.box[data-element='목'], .elementRow[data-element='목'] { --element-color: #2e8b57; }
+.box[data-element='화'], .elementRow[data-element='화'] { --element-color: #d9363e; }
+.box[data-element='토'], .elementRow[data-element='토'] { --element-color: #e8b931; --element-text: #3a2e00; }
+.box[data-element='금'], .elementRow[data-element='금'] { --element-color: #f4f4f2; --element-border: #bdbdbd; --element-text: #3a3a3a; --bar-color: #a9a9a4; }
+.box[data-element='수'], .elementRow[data-element='수'] { --element-color: #20262e; }
+.dayMaster { outline: 3px solid #7b5cff; outline-offset: 2px; }
+.hanja { font-family: 'Noto Serif CJK KR', 'Noto Serif KR', 'Songti SC', 'Batang', '바탕', serif; font-size: 38px; font-weight: 700; line-height: 1.15; }
+.characterLabel { margin-top: 6px; font-size: 11px; }
+.distribution { margin-top: 22px; }
+.distribution h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.distributionNote { margin: 2px 0 12px; font-size: 12px; color: #566371; }
+.elementList { margin: 0; padding: 0; list-style: none; }
+.elementRow { display: grid; grid-template-columns: 12px 46px minmax(0, 1fr) 20px; gap: 8px; align-items: center; margin-top: 8px; font-size: 13px; }
+.dot { width: 12px; height: 12px; border: 1px solid var(--element-border, var(--element-color)); border-radius: 50%; background: var(--element-color); }
+.bar { height: 10px; border-radius: 6px; background: #eee; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--bar-color, var(--element-color)); }
+.count { text-align: right; color: #566371; font-variant-numeric: tabular-nums; }
+.footer { margin: 16px 0 0; color: #566371; font-size: 12px; }
+@media (forced-colors: active) {
+  .dayMaster { outline-color: Highlight; }
+  .bar { border: 1px solid CanvasText; }
+  .bar > span { background: Highlight; }
+}
