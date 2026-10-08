@@ -114,9 +114,9 @@ export function comparePair(a: CompatMember, b: CompatMember): PairCompat {
 
   for (const el of ELEMENTS) {
     if (a.chart.elements[el] === 0 && b.chart.elements[el] >= 2) {
-      facts.push({ kind: 'match', code: 'complement', text: `${B}에게 많은 ${ELEMENT_NAME[el]} 기운이 ${A}에게 적은 부분을 채워줘요.` })
+      facts.push({ kind: 'match', code: 'complement', text: `전통 해석에서는 ${B}에게 많은 ${ELEMENT_NAME[el]} 기운이 ${A}에게 적은 부분을 채워주는 관계로 봐요.` })
     } else if (b.chart.elements[el] === 0 && a.chart.elements[el] >= 2) {
-      facts.push({ kind: 'match', code: 'complement', text: `${A}에게 많은 ${ELEMENT_NAME[el]} 기운이 ${B}에게 적은 부분을 채워줘요.` })
+      facts.push({ kind: 'match', code: 'complement', text: `전통 해석에서는 ${A}에게 많은 ${ELEMENT_NAME[el]} 기운이 ${B}에게 적은 부분을 채워주는 관계로 봐요.` })
     }
   }
 

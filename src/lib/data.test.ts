@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { AppError, toAppError } from './errors'
 import { inviteUrl, parseInvitePath } from './rooms'
-import { MAX_MESSAGE_LENGTH, normalizeMessage } from './chat'
+import { MAX_MESSAGE_LENGTH, normalizeMessage, removeMessage, type ChatMessage } from './chat'
 
 // 모든 값은 가짜 데이터다 (AGENTS.md P1).
 const TOKEN = 'a'.repeat(64)
@@ -42,5 +42,13 @@ describe('normalizeMessage', () => {
     expect(() => normalizeMessage('   ')).toThrow('메시지를 입력해 주세요.')
     expect(normalizeMessage('가'.repeat(MAX_MESSAGE_LENGTH))).toHaveLength(MAX_MESSAGE_LENGTH)
     expect(() => normalizeMessage('가'.repeat(MAX_MESSAGE_LENGTH + 1))).toThrow('메시지는 2000자까지 보낼 수 있어요.')
+  })
+})
+
+describe('removeMessage', () => {
+  it('지워진 메시지만 목록에서 뺀다', () => {
+    const m = (id: number): ChatMessage => ({ id, roomId: 'r', senderId: 's', body: 'b', memberCountAtSend: 2, createdAt: '' })
+    expect(removeMessage([m(1), m(2), m(3)], 2).map((x) => x.id)).toEqual([1, 3])
+    expect(removeMessage([m(1)], 99)).toHaveLength(1)
   })
 })

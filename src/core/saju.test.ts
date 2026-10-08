@@ -65,6 +65,24 @@ describe('computeSaju', () => {
     expect(computeSaju(solar(2024, 2, 4, { hour: 9, minute: 0 }), NOW).yearMonthUncertain).toBe(false)
   })
 
+  it('오류 문구에 입력한 날짜가 들어가지 않는다', () => {
+    try {
+      computeSaju(solar(2023, 2, 30, null), NOW)
+      throw new Error('통과하면 안 됨')
+    } catch (e) {
+      expect((e as Error).message).toBe('날짜를 다시 확인해 주세요.')
+      expect((e as Error).message).not.toMatch(/2023|30/)
+    }
+    expect(() => computeSaju({ year: 2024, month: 2, day: 1, calendar: 'lunar', isLeapMonth: true, time: null }, NOW)).toThrow('그 해에는 해당 윤달이 없어요.')
+  })
+
+  it('미래 날짜는 한국 시간 기준으로 판단', () => {
+    // 한국은 이미 10월 9일, UTC로는 10월 8일인 순간
+    const now = new Date('2026-10-08T16:00:00Z')
+    expect(() => computeSaju(solar(2026, 10, 9, null), now)).not.toThrow()
+    expect(() => computeSaju(solar(2026, 10, 10, null), now)).toThrow(SajuInputError)
+  })
+
   it('존재하지 않는 날짜·미래 날짜·잘못된 시간은 오류', () => {
     expect(() => computeSaju(solar(2023, 2, 30, null), NOW)).toThrow(SajuInputError)
     expect(() => computeSaju(solar(2027, 1, 1, null), NOW)).toThrow(SajuInputError)

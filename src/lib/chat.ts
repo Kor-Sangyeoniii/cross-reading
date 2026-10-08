@@ -76,17 +76,42 @@ export async function sendMessage(roomId: string, senderId: string, body: string
   return data.id
 }
 
-/** 새 메시지 실시간 수신. RLS가 적용되어 구성원이 아니거나 내가 차단한 사람의 메시지는 오지 않는다. 반환값으로 구독 해제. */
-export function subscribeMessages(roomId: string, onMessage: (m: ChatMessage) => void): () => void {
+/**
+ * 메시지 실시간 수신. RLS가 적용되어 구성원이 아니거나 내가 차단한 사람의 메시지는 오지 않는다.
+ * - onDelete: 메시지가 지워지면(작성자 계정 삭제 등) 그 id가 온다 → 화면 목록·캐시에서 제거.
+ *   (Supabase는 삭제 이벤트를 방 필터로 거를 수 없고 id만 보내므로, 내 화면에 있는 id만 지우면 된다)
+ * - onResync: 연결이 끊겼다 다시 이어지면 호출 → listMessages로 다시 불러와 빠진·지워진 메시지를 맞춘다.
+ * 반환값으로 구독 해제.
+ */
+export function subscribeMessages(
+  roomId: string,
+  onMessage: (m: ChatMessage) => void,
+  handlers: { onDelete?: (messageId: number) => void; onResync?: () => void } = {},
+): () => void {
+  let subscribedOnce = false
   const channel: RealtimeChannel = client()
     .channel(`room:${roomId}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload) =>
       onMessage(toMessage(payload.new as MessageRow)),
     )
-    .subscribe()
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (payload) => {
+      const id = (payload.old as { id?: number }).id
+      if (typeof id === 'number') handlers.onDelete?.(id)
+    })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        if (subscribedOnce) handlers.onResync?.()
+        subscribedOnce = true
+      }
+    })
   return () => {
     void client().removeChannel(channel)
   }
+}
+
+/** 화면 목록에서 지워진 메시지를 뺀다 (onDelete와 함께 사용) */
+export function removeMessage(list: ChatMessage[], messageId: number): ChatMessage[] {
+  return list.filter((m) => m.id !== messageId)
 }
 
 export async function blockUser(blockerId: string, blockedId: string): Promise<void> {

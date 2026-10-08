@@ -5,11 +5,13 @@
 import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
 import { isFreshMessage, newMessagePayload, pushRecipients } from '../../../src/core/pushPolicy.ts'
-
-const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+import { responder } from '../_shared/respond.ts'
 
 Deno.serve(async (req: Request) => {
+  const res = responder(req)
+  const pre = res.preflight()
+  if (pre) return pre
+  const json = res.json
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' })
   const auth = req.headers.get('Authorization')
   if (!auth) return json(401, { error: 'not_authenticated' })
