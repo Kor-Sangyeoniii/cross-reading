@@ -23,5 +23,11 @@
 ## 명령
 - `npm install` / `npm run dev` / `npm test` / `npm run build` / `npm run lint`
 
+## Supabase
+- 프로젝트: `cross-reading` (ref `bfntkulpspknuuwmnhfx`, 서울, Free)
+- URL: `https://bfntkulpspknuuwmnhfx.supabase.co` (공개값)
+- 공개 키(publishable/anon)는 Supabase 대시보드 또는 Supabase MCP `get_publishable_keys`로 받아 `.env.local`에 넣는다. 비밀키는 쓰지 않는다.
+- DB 변경은 `supabase/migrations/`에 파일로 남기고 같은 내용을 적용한다.
+
 ## 환경 변수
 `.env.example` 참고. 실제 값은 `.env.local`(Git 제외)과 배포 설정에만 둔다.
