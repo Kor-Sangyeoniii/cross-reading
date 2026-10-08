@@ -11,7 +11,11 @@ describe('computeSaju', () => {
   it('알려진 날짜의 원국 (manseryeok 문서 예시)', () => {
     const r = computeSaju(solar(1992, 10, 24, { hour: 5, minute: 30 }), NOW)
     expect(r.pillars).toEqual({ year: '임신', month: '경술', day: '계유', hour: '을묘' })
-    expect(r.dayMaster).toEqual({ stem: '계', element: '수' })
+    expect(r.dayMaster).toEqual({ stem: '계', element: '수', yinYang: '음', hanja: '癸水', label: '계수(癸水)' })
+    expect(r.pillarsHanja).toEqual({ year: '壬申', month: '庚戌', day: '癸酉', hour: '乙卯' })
+    expect(r.tenGods.year).toEqual({ stem: '겁재', branch: '정인' })
+    expect(r.tenGods.day).toEqual({ branch: '편인' })
+    expect(r.tenGods.hour).toEqual({ stem: '식신', branch: '식신' })
     expect(r.hourKnown).toBe(true)
     expect(Object.values(r.elements).reduce((a, b) => a + b, 0)).toBe(8)
   })
@@ -37,6 +41,8 @@ describe('computeSaju', () => {
   it('출생시간을 모르면 시주 없이 6글자로 센다', () => {
     const r = computeSaju(solar(1992, 10, 24, null), NOW)
     expect(r.pillars.hour).toBeNull()
+    expect(r.pillarsHanja.hour).toBeNull()
+    expect(r.tenGods.hour).toBeNull()
     expect(r.hourKnown).toBe(false)
     expect(Object.values(r.elements).reduce((a, b) => a + b, 0)).toBe(6)
     expect(r.yearMonthUncertain).toBe(false)
