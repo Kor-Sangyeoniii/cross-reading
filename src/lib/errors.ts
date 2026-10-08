@@ -13,6 +13,9 @@ const MESSAGES: Record<string, string> = {
   message_empty: '메시지를 입력해 주세요.',
   message_too_long: '메시지는 2000자까지 보낼 수 있어요.',
   report_reason_required: '신고 이유를 입력해 주세요.',
+  confirm_required: '계정 삭제를 한 번 더 확인해 주세요.',
+  reauth_required: '안전을 위해 다시 로그인한 뒤 삭제해 주세요.',
+  delete_failed: '계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.',
 }
 
 const DEFAULT_MESSAGE = '잠시 후 다시 시도해 주세요.'
