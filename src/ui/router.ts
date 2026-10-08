@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { stripBase, withBase } from '../lib/basePath'
 
 // 아주 작은 주소 이동 도구 (라이브러리 없이 history API만 사용).
 // 화면 주소: / · /me · /rooms · /rooms/:id · /invite/:token · /settings · /onboarding
@@ -6,16 +7,16 @@ import { useEffect, useState } from 'react'
 const EVENT = 'cr:navigate'
 
 export function navigate(path: string, opts: { replace?: boolean } = {}): void {
-  if (opts.replace) window.history.replaceState(null, '', path)
-  else window.history.pushState(null, '', path)
+  if (opts.replace) window.history.replaceState(null, '', withBase(path))
+  else window.history.pushState(null, '', withBase(path))
   window.dispatchEvent(new Event(EVENT))
   window.scrollTo(0, 0)
 }
 
 export function usePath(): string {
-  const [path, setPath] = useState(() => window.location.pathname)
+  const [path, setPath] = useState(() => stripBase(window.location.pathname))
   useEffect(() => {
-    const update = () => setPath(window.location.pathname)
+    const update = () => setPath(stripBase(window.location.pathname))
     window.addEventListener('popstate', update)
     window.addEventListener(EVENT, update)
     return () => {

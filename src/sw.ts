@@ -31,7 +31,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(payload.title, {
       body: payload.body,
       tag: payload.tag,
-      icon: '/icon.svg',
+      icon: new URL('icon.svg', self.registration.scope).href,
       data: { url: payload.url },
     }),
   )
@@ -39,11 +39,13 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = new URL((event.notification.data as { url?: string } | undefined)?.url ?? '/', self.location.origin).href
+  // 알림의 경로('/rooms/..')는 앱 안 경로라 서비스워커 범위(하위 경로 포함) 기준으로 바꾼다.
+  const path = (event.notification.data as { url?: string } | undefined)?.url ?? '/'
+  const url = new URL(path.replace(/^\/+/, ''), self.registration.scope).href
   event.waitUntil(
     (async () => {
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-      const open = windows.find((w) => w.url.startsWith(self.location.origin))
+      const open = windows.find((w) => w.url.startsWith(self.registration.scope))
       if (open) {
         await open.focus()
         await open.navigate(url)

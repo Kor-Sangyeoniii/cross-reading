@@ -1,4 +1,5 @@
 import type { GroupCompat } from '../core/compat'
+import { withBase } from './basePath'
 import { AppError, toAppError } from './errors'
 import { supabase } from './supabase'
 
@@ -41,7 +42,7 @@ function client() {
 
 /** 초대 링크 주소. 토큰은 이 주소에만 담기고 DB에는 해시만 남는다. */
 export function inviteUrl(token: string, origin: string = window.location.origin): string {
-  return `${origin}/invite/${encodeURIComponent(token)}`
+  return `${origin}${withBase(`/invite/${encodeURIComponent(token)}`)}`
 }
 
 /** 초대 링크 경로에서 토큰을 꺼낸다. 형식이 맞지 않으면 null. */

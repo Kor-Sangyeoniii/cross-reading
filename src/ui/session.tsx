@@ -5,6 +5,7 @@ import { getSession, onSessionChange } from '../lib/auth'
 import { getMyProfile, type MyProfile } from '../lib/profile'
 import { takeReturnTo } from '../lib/redirect'
 import { supabase } from '../lib/supabase'
+import { stripBase } from '../lib/basePath'
 import { navigate } from './router'
 
 // 로그인 상태와 내 프로필을 화면 전체에서 같이 쓴다.
@@ -30,7 +31,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const stop = onSessionChange((s) => {
       setSession(s)
       // 로그인 후 /auth/callback 으로 돌아오면 원래 보던 곳(예: 초대 링크)으로 보낸다.
-      if (s && window.location.pathname === '/auth/callback') navigate(takeReturnTo(), { replace: true })
+      if (s && stripBase(window.location.pathname) === '/auth/callback') navigate(takeReturnTo(), { replace: true })
     })
     return () => {
       alive = false

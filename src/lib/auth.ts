@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
+import { withBase } from './basePath'
 import { detectInAppBrowser, kakaoOpenExternalUrl } from './inapp'
 import { rememberReturnTo } from './redirect'
 import { supabase } from './supabase'
@@ -36,7 +37,7 @@ export async function startLogin(
   rememberReturnTo(returnTo)
   const { error } = await requireClient().auth.signInWithOAuth({
     provider,
-    options: { redirectTo: `${window.location.origin}/auth/callback` },
+    options: { redirectTo: `${window.location.origin}${withBase('/auth/callback')}` },
   })
   if (error) return { kind: 'error', message: error.message }
   return { kind: 'redirecting' }
