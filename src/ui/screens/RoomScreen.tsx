@@ -7,6 +7,9 @@ import { ErrorNotice, Loading, Sheet, TopBar } from '../kit'
 import { messageOf } from '../messages'
 import { navigate } from '../router'
 import { useUserId } from '../useSession'
+import { ElementFlow } from '../ElementFlow'
+import { CompatFactList } from '../ReadingDetails'
+import { useMessageNotices } from '../notices'
 
 // 15 소그룹 궁합 + 16 그룹 대화를 한 모임 화면의 두 탭으로. 점수 없음, 자동 전송 없음.
 
@@ -14,6 +17,7 @@ type Tab = 'compat' | 'chat'
 
 export function RoomScreen({ roomId, nickname }: { roomId: string; nickname: string }) {
   const me = useUserId()
+  const { unreadRooms, refresh: refreshNotices } = useMessageNotices()
   const [tab, setTab] = useState<Tab>('compat')
   const [members, setMembers] = useState<RoomMember[] | null>(null)
   const [error, setError] = useState('')
@@ -65,7 +69,7 @@ export function RoomScreen({ roomId, nickname }: { roomId: string; nickname: str
       </p>
       <div className="segmented" role="tablist">
         <button type="button" role="tab" aria-selected={tab === 'compat'} onClick={() => setTab('compat')}>궁합</button>
-        <button type="button" role="tab" aria-selected={tab === 'chat'} onClick={() => setTab('chat')}>대화</button>
+        <button type="button" role="tab" aria-label={unreadRooms.includes(roomId) ? '대화 · 새 메시지' : '대화'} aria-selected={tab === 'chat'} onClick={() => setTab('chat')}>대화{unreadRooms.includes(roomId) && <span className="badge" role="status">새 메시지</span>}</button>
       </div>
 
       {tab === 'compat' ? (
@@ -117,7 +121,7 @@ export function RoomScreen({ roomId, nickname }: { roomId: string; nickname: str
           member={target.member}
           messageId={target.messageId}
           onClose={() => setTarget(null)}
-          onBlocked={(id) => setHiddenSenders((h) => [...h, id])}
+          onBlocked={(id) => { setHiddenSenders((h) => [...h, id]); refreshNotices() }}
         />
       )}
       {inviting && <InviteSheet nickname={nickname} roomId={roomId} onClose={() => setInviting(false)} />}
@@ -176,8 +180,10 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
     <div className="stack-lg">
       <section className="card">
         <h2>우리 모임 요약</h2>
-        <ul>{compat.facts.map((f) => <li key={f.code}>{f.text}</li>)}</ul>
+        <CompatFactList facts={compat.facts} />
       </section>
+
+      <ElementFlow elements={compat.elements} />
 
       {compat.pairs.length > 1 && (
         <div className="field">
@@ -192,11 +198,11 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
 
       <section className="card">
         <h2>잘 맞는 부분</h2>
-        {matches.length > 0 ? <ul>{matches.map((f) => <li key={f.code + f.text}>{f.text}</li>)}</ul> : <p className="muted">눈에 띄는 공통점은 없었어요.</p>}
+        {matches.length > 0 ? <CompatFactList facts={matches} /> : <p className="muted">눈에 띄는 공통점은 없었어요.</p>}
       </section>
       <section className="card">
         <h2>다르게 느낄 수 있는 부분</h2>
-        {diffs.length > 0 ? <ul>{diffs.map((f) => <li key={f.code + f.text}>{f.text}</li>)}</ul> : <p className="muted">눈에 띄는 차이는 없었어요.</p>}
+        {diffs.length > 0 ? <CompatFactList facts={diffs} /> : <p className="muted">눈에 띄는 차이는 없었어요.</p>}
       </section>
 
       <section className="card stack">
@@ -237,30 +243,65 @@ function ChatTab({ roomId, me, members, draft, setDraft, hiddenSenders, onReport
   hiddenSenders: string[]
   onReport: (member: RoomMember, messageId: number) => void
 }) {
+  const { markRoomRead, refresh } = useMessageNotices()
   const [messages, setMessages] = useState<ChatMessage[] | null>(null)
   const [pending, setPending] = useState<Pending[]>([])
   const [error, setError] = useState('')
   const [sendError, setSendError] = useState('')
+  const [pushWarning, setPushWarning] = useState(false)
   const bottom = useRef<HTMLDivElement>(null)
   const input = useRef<HTMLTextAreaElement>(null)
+  const loadSequence = useRef(0)
+  const arriving = useRef(new Map<number, ChatMessage>())
+  const deleted = useRef(new Set<number>())
 
   const load = useCallback(async () => {
+    const sequence = ++loadSequence.current
     setError('')
     try {
-      setMessages(await listMessages(roomId))
+      const snapshot = await listMessages(roomId)
+      if (sequence !== loadSequence.current) return
+      // Preserve INSERTs received while the query was in flight and remove DELETEs.
+      const merged = new Map(snapshot.map((m) => [m.id, m]))
+      for (const [id, message] of arriving.current) if (!deleted.current.has(id)) merged.set(id, message)
+      setMessages([...merged.values()].filter((m) => !deleted.current.has(m.id)).sort((a, b) => a.id - b.id))
+      arriving.current.clear()
+      deleted.current.clear()
     } catch (e) {
-      setError(messageOf(e))
+      if (sequence === loadSequence.current) setError(messageOf(e))
     }
   }, [roomId])
 
   useEffect(() => {
+    const sequenceRef = loadSequence
     void load()
-    return subscribeMessages(
+    const unsubscribe = subscribeMessages(
       roomId,
-      (m) => setMessages((list) => (list && !list.some((x) => x.id === m.id) ? [...list, m] : list)),
-      { onDelete: (id) => setMessages((list) => (list ? removeMessage(list, id) : list)), onResync: () => void load() },
+      (m) => {
+        arriving.current.set(m.id, m)
+        setMessages((list) => list && !list.some((x) => x.id === m.id) ? [...list, m].sort((a, b) => a.id - b.id) : list)
+      },
+      {
+        onDelete: (id) => { deleted.current.add(id); arriving.current.delete(id); setMessages((list) => list ? removeMessage(list, id) : list) },
+        onResync: () => void load(),
+      },
     )
+    const onVisible = () => { if (document.visibilityState === 'visible') void load() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { sequenceRef.current++; unsubscribe(); document.removeEventListener('visibilitychange', onVisible) }
   }, [roomId, load])
+
+  useEffect(() => {
+    const acknowledge = () => {
+      if (document.visibilityState !== 'visible' || !messages) return
+      const visibleMessages = messages.filter((m) => !hiddenSenders.includes(m.senderId))
+      const latest = Math.max(0, ...visibleMessages.map((m) => m.id))
+      if (latest > 0) markRoomRead(roomId, latest)
+    }
+    acknowledge()
+    document.addEventListener('visibilitychange', acknowledge)
+    return () => document.removeEventListener('visibilitychange', acknowledge)
+  }, [messages, me, hiddenSenders, markRoomRead, roomId])
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: 'end' })
@@ -279,9 +320,10 @@ function ChatTab({ roomId, me, members, draft, setDraft, hiddenSenders, onReport
     setPending((p) => [...p.filter((x) => x.key !== key), { key, body, state: 'sending' }])
     if (draft === body) setDraft('')
     try {
-      await sendMessage(roomId, me, body)
+      await sendMessage(roomId, me, body, () => setPushWarning(true))
       setPending((p) => p.filter((x) => x.key !== key))
       void load()
+      refresh()
     } catch (e) {
       setPending((p) => p.map((x) => (x.key === key ? { ...x, state: 'failed' } : x)))
       setSendError(messageOf(e))
@@ -341,6 +383,7 @@ function ChatTab({ roomId, me, members, draft, setDraft, hiddenSenders, onReport
         <div ref={bottom} />
       </div>
       {sendError && <ErrorNotice message={sendError} />}
+      {pushWarning && <p className="notice" role="status">메시지는 보냈지만 웹 푸시 요청을 확인하지 못했어요. 상대방은 앱을 열어 새 메시지를 확인할 수 있어요.</p>}
       <form
         className="composer"
         onSubmit={(e) => {

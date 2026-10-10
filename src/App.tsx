@@ -10,6 +10,7 @@ import { SettingsScreen } from './ui/screens/SettingsScreen'
 import { StartScreen } from './ui/screens/StartScreen'
 import { SessionProvider } from './ui/session'
 import { useSession } from './ui/useSession'
+import { MessageNoticeProvider } from './ui/MessageNoticeProvider'
 
 // 화면 연결. 처음부터 로그인(확정) → 프로필이 없으면 가입 단계 → 관계 / 내 프로필.
 // 초대 링크는 프로필이 없어도 초대 전용 짧은 경로(11 → 19)로 바로 간다.
@@ -17,9 +18,11 @@ import { useSession } from './ui/useSession'
 export default function App() {
   return (
     <SessionProvider>
+      <MessageNoticeProvider>
       <div className="app">
         <Routes />
       </div>
+      </MessageNoticeProvider>
     </SessionProvider>
   )
 }

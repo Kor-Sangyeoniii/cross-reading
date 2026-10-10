@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { navigate } from './router'
+import { useMessageNotices } from './notices'
 
 // 화면 공통 부품: 머리글, 아래 탭, 아래에서 열리는 패널, 로딩·오류.
 
@@ -24,11 +25,12 @@ export function TopBar({ title, back, right }: { title: string; back?: string | 
 }
 
 export function Tabs({ current }: { current: 'rooms' | 'me' }) {
+  const { unreadRooms } = useMessageNotices()
   return (
     <nav className="tabs" aria-label="주요 메뉴">
       <button className="tab" type="button" aria-current={current === 'rooms' ? 'page' : undefined} onClick={() => navigate('/rooms')}>
         <span aria-hidden="true">💬</span>
-        <span>관계</span>
+        <span>관계{unreadRooms.length > 0 && <span className="badge" role="status">새 메시지 · {unreadRooms.length}개 모임</span>}</span>
       </button>
       <button className="tab" type="button" aria-current={current === 'me' ? 'page' : undefined} onClick={() => navigate('/me')}>
         <span aria-hidden="true">🙂</span>
