@@ -7,7 +7,7 @@ import { ErrorNotice, Tabs, TopBar } from '../kit'
 import { navigate } from '../router'
 import { SajuChart } from '../SajuChart'
 import { ElementFlow } from '../ElementFlow'
-import { DailyReading } from '../DailyReading'
+import { PersonalReading } from '../PersonalReading'
 import { ReadingDetails } from '../ReadingDetails'
 
 // 06 내 프로필: 한 줄 요약, 키워드, 나의 특징 / 관계에서 편한 점 / 대화할 때 참고할 점, 사주 표.
@@ -47,6 +47,8 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
             </ul>
           </section>
 
+          <PersonalReading key={JSON.stringify(profile.birth)} chart={result.chart} birth={profile.birth} />
+
           <button className="btn" type="button" onClick={() => setInviting(true)}>친구 초대하기</button>
 
           <section className="card">
@@ -78,7 +80,7 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
           )}
 
           <ElementFlow elements={result.chart.elements} hourKnown={result.chart.hourKnown} />
-          <DailyReading chart={result.chart} />
+
           <SajuChart chart={result.chart} nickname={profile.nickname} />
           <p className="muted small">{result.summary.disclaimer}</p>
         </div>
