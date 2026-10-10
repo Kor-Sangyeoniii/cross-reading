@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { startLogin, type LoginProvider } from '../../lib/auth'
+import { PasswordAuth } from '../PasswordAuth'
 import { stripBase } from '../../lib/basePath'
 
 // 01 시작 + 07 로그인 (처음부터 로그인 — 확정). 초대 링크로 들어온 경우 같은 화면에서 초대 안내를 먼저 보여준다.
@@ -7,7 +8,7 @@ import { stripBase } from '../../lib/basePath'
 export function StartScreen({ invited }: { invited?: boolean }) {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [notice, setNotice] = useState('')
-  const [busy, setBusy] = useState<LoginProvider | null>(null)
+  const [busy, setBusy] = useState<LoginProvider | 'password' | null>(null)
 
   async function login(provider: LoginProvider) {
     setNotice('')
@@ -46,6 +47,8 @@ export function StartScreen({ invited }: { invited?: boolean }) {
             ? '가입할 때 사용한 계정으로 로그인해 주세요. 처음 이용하는 계정은 인증 후 가입 절차로 안내해요.'
             : '계정 인증 후 이용 동의와 내 프로필을 입력해요. 이미 가입한 계정이면 바로 앱으로 연결돼요.'}
         </p>
+        <PasswordAuth key={mode} mode={mode} disabled={busy !== null} onBusy={(pending) => setBusy(pending ? 'password' : null)} />
+        <p className="muted small" style={{ textAlign: 'center' }}>또는 간편 계정으로 계속하기</p>
         <button className="btn kakao" type="button" disabled={busy !== null} onClick={() => login('kakao')}>
           {busy === 'kakao' ? '카카오로 이동 중…' : mode === 'login' ? '카카오 계정으로 로그인' : '카카오 계정으로 회원가입'}
         </button>

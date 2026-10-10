@@ -36,6 +36,7 @@ export type Route =
   | { name: 'settings' }
   | { name: 'onboarding' }
   | { name: 'callback' }
+  | { name: 'resetPassword' }
   | { name: 'notFound' }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -47,6 +48,7 @@ export function matchRoute(path: string): Route {
   if (p === '/rooms') return { name: 'rooms' }
   if (p === '/settings') return { name: 'settings' }
   if (p === '/onboarding') return { name: 'onboarding' }
+  if (p === '/auth/reset-password') return { name: 'resetPassword' }
   if (p === '/auth/callback') return { name: 'callback' }
   const room = /^\/rooms\/([^/]+)$/.exec(p)
   if (room && UUID.test(room[1])) return { name: 'room', roomId: room[1] }

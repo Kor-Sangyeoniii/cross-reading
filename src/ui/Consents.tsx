@@ -41,7 +41,7 @@ export function ServiceConsent({ value, onChange, framed }: { value: ServiceCons
         <details>
           <summary>자세히 보기</summary>
           <p className="muted small">
-            수집 항목: 닉네임, 생년월일(양력/음력), 출생시간(선택), MBTI(선택). 목적: 내 프로필 해석과 친구 궁합 계산.
+            수집 항목: 이메일(계정 로그인 방식에 따라), 닉네임, 생년월일(양력/음력), 출생시간(선택), MBTI(선택). 목적: 계정 식별·가입 확인·비밀번호 재설정, 내 프로필 해석과 친구 궁합 계산.
             보관 기간과 자세한 약관은 정식 출시 전에 안내할 예정이에요.
           </p>
         </details>
