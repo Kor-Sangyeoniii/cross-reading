@@ -1,0 +1,48 @@
+.hero { position: relative; overflow: hidden; padding: 24px 20px 20px; border-radius: 28px; color: #242838; background: var(--story-color, #d9d9ff); border: 1px solid #2428380d; }
+.eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
+.hero h2 { font-size: clamp(30px, 8.5vw, 40px); letter-spacing: -.06em; line-height: 1.2; font-weight: 900; margin: 13px 0 8px; }
+.subtitle { font-size: 16px; line-height: 1.5; white-space: pre-line; }
+.duo { position: relative; margin: 0 -12px -5px; }
+.duo::after { content: ''; position: absolute; bottom: 6px; left: 15%; width: 70%; height: 13px; border-radius: 50%; background: #24283812; }
+.duo :global(.chemistry-duo) { display: flex; align-items: center; justify-content: center; height: 180px; position: relative; z-index: 1; }
+.duo svg { width: 48%; max-width: 180px; transform: rotate(-9deg); }
+.duo svg:last-child { transform: rotate(9deg); }
+.duo span { font-size: 24px; margin: 0 -7px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 750; padding: 5px 10px; border-radius: 20px; background: #ffffff8a; }
+.pair { display: flex; align-items: center; gap: 8px; margin-top: 13px; font-weight: 700; font-size: 13px; }
+.pair span { min-width: 0; overflow-wrap: anywhere; }
+.pair span:nth-child(2) { opacity: .5; }
+.signals { display: grid; gap: 10px; margin-top: 14px; }
+.signal { padding: 16px; border-radius: 18px; border: 1px solid #dce8dc; background: #f0f6ed; }
+.difference { border-color: #f2d5c4; background: #fff0e7; }
+.signal h3 { font-size: 12px; font-weight: 800; letter-spacing: .02em; color: #396847; margin: 0 0 6px; }
+.difference h3 { color: #a14b33; }
+.signal strong { display: block; font-size: 18px; line-height: 1.4; letter-spacing: -.04em; }
+.signal p { font-size: 13px; margin-top: 5px; }
+.signal small { display: block; margin-top: 6px; font-size: 11px; color: #59615f; }
+.share { background: #282438; color: #fff; margin-top: 14px; border-radius: 18px; min-height: 52px; font-weight: 800; }
+.note { font-size: 11px; color: #616577; margin: 9px 2px 0; }
+.details { border: 1px solid #e7e3df; background: white; border-radius: 20px; padding: 16px; }
+.details summary { cursor: pointer; font-weight: 750; }
+.details[open] summary { margin-bottom: 14px; }
+.mini { display: grid; grid-template-columns: 112px 1fr; align-items: center; gap: 14px; background: #eee9ff; padding: 18px; border-radius: 24px; }
+.mini svg { width: 112px; }
+.mini h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.045em; margin: 6px 0; }
+.mini p { font-size: 12px; }
+.brand { text-align: center; padding: 26px 0 18px; }
+.brand h1 { font-size: 12px; letter-spacing: .22em; font-weight: 900; }
+.brand h2 { font-size: 38px; font-weight: 900; line-height: 1.13; letter-spacing: -.055em; margin-top: 16px; }
+.brand .duo { background: #e6e0fa; border-radius: 90px; margin: 16px 22px 12px; }
+.brand .duo :global(.chemistry-duo) { height: 145px; }
+.brand .duo svg { max-width: 146px; }
+.brand p { font-size: 14px; color: #566371; }
+.empty { text-align: center; padding: 12px 8px; }
+.empty h2 { font-size: 28px; letter-spacing: -.05em; line-height: 1.3; }
+.empty p { margin: 12px 0 18px; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .duo svg:first-child { animation: hello-left .7s ease-out 1; }
+  .duo svg:last-child { animation: hello-right .7s ease-out 1; }
+  @keyframes hello-left { from { transform: translate(-10px, 12px) rotate(-15deg); } to { transform: rotate(-9deg); } }
+  @keyframes hello-right { from { transform: translate(10px, 12px) rotate(15deg); } to { transform: rotate(9deg); } }
+}
+@media (max-width: 370px) { .mini { grid-template-columns: 90px 1fr; padding: 14px; gap: 10px; } .mini svg { width: 90px; } .mini h2 { font-size: 22px; } }

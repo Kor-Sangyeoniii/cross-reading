@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { startLogin, type LoginProvider } from '../../lib/auth'
+import { BrandCharacters } from '../ChemistryCard'
 import { PasswordAuth } from '../PasswordAuth'
 import { stripBase } from '../../lib/basePath'
 
@@ -31,14 +32,7 @@ export function StartScreen({ invited }: { invited?: boolean }) {
 
   return (
     <main className="screen">
-      <div className="hero">
-        <h1>Cross Reading</h1>
-        {invited ? (
-          <p>친구가 함께 궁합을 보고 싶어 해요.<br />로그인하면 초대를 확인할 수 있어요.</p>
-        ) : (
-          <p>나를 알아보고, 서로를 더 이해해요.<br />사주와 MBTI로 시작하는 우리 이야기</p>
-        )}
-      </div>
+      <BrandCharacters invited={invited} />
 
       <section className="stack" aria-labelledby="auth-title">
         <h2 id="auth-title">{mode === 'login' ? '로그인' : '회원가입'}</h2>
