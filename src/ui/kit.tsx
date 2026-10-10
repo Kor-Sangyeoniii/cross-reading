@@ -25,13 +25,16 @@ export function TopBar({ title, back, right }: { title: string; back?: string | 
   )
 }
 
-export function Tabs({ current }: { current: 'rooms' | 'me' }) {
+export function Tabs({ current }: { current: 'home' | 'rooms' | 'me' }) {
   const { unreadRooms } = useMessageNotices()
   return (
     <nav className="tabs" aria-label="주요 메뉴">
+      <button className="tab" type="button" aria-current={current === 'home' ? 'page' : undefined} onClick={() => navigate('/')}>
+        <span aria-hidden="true">⌂</span><span>홈</span>
+      </button>
       <button className="tab" type="button" aria-current={current === 'rooms' ? 'page' : undefined} onClick={() => navigate('/rooms')}>
         <span aria-hidden="true">💬</span>
-        <span>관계{unreadRooms.length > 0 && <span className="badge" role="status">새 메시지 · {unreadRooms.length}개 모임</span>}</span>
+        <span>궁합·대화{unreadRooms.length > 0 && <span className="badge" role="status">새 메시지 · {unreadRooms.length}개 모임</span>}</span>
       </button>
       <button className="tab" type="button" aria-current={current === 'me' ? 'page' : undefined} onClick={() => navigate('/me')}>
         <span aria-hidden="true">🙂</span>

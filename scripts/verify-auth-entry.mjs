@@ -52,8 +52,8 @@ try {
     await next.page.evaluate(value=>{window.__auth.existing=value;window.__auth.behavior='complete'},existing);
     if(signup)await next.page.getByRole('button',{name:'회원가입',exact:true}).click();
     await next.page.getByRole('button',{name:signup?'카카오 계정으로 회원가입':'카카오 계정으로 로그인',exact:true}).click();
-    await next.page.getByRole('heading',{name:existing?'관계':'시작하기 전에',exact:true}).waitFor();
-    assert.equal(new URL(next.page.url()).pathname,existing?'/rooms':'/onboarding');
+    await next.page.getByRole('heading',{name:existing?'Cross Reading':'시작하기 전에',exact:true}).waitFor();
+    assert.equal(new URL(next.page.url()).pathname,existing?'/':'/onboarding');
     assert.equal(await next.page.evaluate(()=>window.__auth.writes),0);
     await next.context.close();
   }

@@ -24,6 +24,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); overflow-wrap: anywhere; }
+html { scroll-padding-block: 72px calc(var(--tab-h) + 24px + env(safe-area-inset-bottom)); }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3, p { margin: 0; }
 
@@ -112,13 +113,14 @@ details summary { min-height: 44px; display: flex; align-items: center; cursor: 
 /* 아래 탭 */
 .tabs {
   position: fixed; left: 50%; bottom: 0; z-index: 10; transform: translateX(-50%);
-  display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 480px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: 480px;
   min-height: var(--tab-h); padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface); border-top: 1px solid var(--line);
 }
 .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
 .tab[aria-current='page'] { color: var(--primary); font-weight: 700; }
-.tab span:first-child { font-size: 20px; }
+.tab > span:first-child { font-size: 20px; }
+.tab .badge { display: block; font-size: 10px; padding: 0 4px; }
 
 /* 아래에서 열리는 패널 */
 .sheet-backdrop { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; background: rgb(0 0 0 / 40%); }
