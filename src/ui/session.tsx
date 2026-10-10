@@ -28,10 +28,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!supabase) return
     let alive = true
     getSession().then((s) => alive && setSession(s))
-    const stop = onSessionChange((s) => {
+    const stop = onSessionChange((s, event) => {
       setSession(s)
       // 로그인 후 /auth/callback 으로 돌아오면 원래 보던 곳(예: 초대 링크)으로 보낸다.
-      if (s && stripBase(window.location.pathname) === '/auth/callback') navigate(takeReturnTo(), { replace: true })
+      if (s && event === 'PASSWORD_RECOVERY') navigate('/auth/reset-password', { replace: true })
+      else if (s && stripBase(window.location.pathname) === '/auth/callback') navigate(takeReturnTo(), { replace: true })
     })
     return () => {
       alive = false
