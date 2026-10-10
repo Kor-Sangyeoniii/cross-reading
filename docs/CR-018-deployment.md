@@ -29,3 +29,11 @@ main에서 만든 통합 브랜치 codex/CR-018-test-deployment에 해당 브랜
 ## 실제 사용자 테스트 범위
 
 실제 계정/메일/기기 푸시는 대신 생성·발송하지 않았다. 이메일 가입은 활성화·확인 필수 상태만 읽기 확인했다. 운영 SMTP/수신 가능 여부와 Auth Redirect URLs, OAuth 제공자 설정은 실제 사용자 테스트로 확인할 사항이다. PASS/SMS와 새 DB 변경·유료 사용은 없음.
+
+## 게시 결과
+
+- 앱 소스 배포 커밋: 01ec172ca954806ab6386b6b0841e4eb1b02b648.
+- 빌드/게시 workflow 38052785426 성공.
+- GitHub Pages build and deployment 38052819058 성공. Pages API status=built, 게시 커밋 c0f8abbbc33f635b54a83aef2589379c5df5bed2.
+- 게시된 JS index-ChUqmkI3.js와 sw.js의 Git blob SHA가 로컬 검증 빌드와 각각 일치함을 GitHub contents API로 확인.
+- 직접 사이트 HTTP/브라우저 확인은 앞서 기록한 네트워크 정책 제한 때문에 미검증. 사용자 접속 주소는 위 GitHub Pages URL.
