@@ -5,6 +5,7 @@ import { ErrorNotice, Loading, Tabs, TopBar } from '../kit'
 import { messageOf } from '../messages'
 import { navigate } from '../router'
 import { useUserId } from '../useSession'
+import { useMessageNotices } from '../notices'
 
 // 12 관계 목록: 내가 속한 모임(2~4명). 카드를 누르면 15 궁합 / 16 대화가 있는 모임 화면으로.
 
@@ -12,6 +13,7 @@ type RoomCard = MyRoom & { members: RoomMember[] }
 
 export function RoomsScreen({ nickname }: { nickname: string }) {
   const me = useUserId()
+  const { unreadRooms, unavailable, refresh } = useMessageNotices()
   const [rooms, setRooms] = useState<RoomCard[] | null>(null)
   const [error, setError] = useState('')
   const [inviting, setInviting] = useState(false)
@@ -34,6 +36,7 @@ export function RoomsScreen({ nickname }: { nickname: string }) {
   return (
     <main className="screen with-tabs">
       <TopBar title="관계" />
+      {unavailable && <div className="notice" role="status"><p>새 메시지 확인이 지연되고 있어요. 모임을 열어 확인하거나 다시 시도해 주세요.</p><button className="btn small secondary" type="button" onClick={refresh}>다시 확인</button></div>}
       {error && <ErrorNotice message={error} onRetry={load} />}
       {!error && rooms === null && <Loading text="모임을 불러오고 있어요." />}
       {rooms && rooms.length === 0 && (
@@ -56,7 +59,7 @@ export function RoomsScreen({ nickname }: { nickname: string }) {
                 style={{ textAlign: 'left', border: 0, cursor: 'pointer', width: '100%' }}
                 onClick={() => navigate(`/rooms/${r.id}`)}
               >
-                <p style={{ fontWeight: 700 }}>{others.length > 0 ? `${others.join(', ')}님과 나` : '친구를 기다리는 모임'}</p>
+                <p style={{ fontWeight: 700 }}>{unreadRooms.includes(r.id) && <span className="badge">새 메시지</span>} {others.length > 0 ? `${others.join(', ')}님과 나` : '친구를 기다리는 모임'}</p>
                 <p className="muted small">
                   {r.memberCount}/4명 · {waiting ? '친구의 수락을 기다리고 있어요' : '궁합 보기 · 대화하기'}
                 </p>

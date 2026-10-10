@@ -1,5 +1,6 @@
 import type { FiveElement } from 'manseryeok'
 import type { SajuChart } from './saju.ts'
+import { ELEMENT_READING, type ReadingDetail } from './reading.ts'
 
 // 내 프로필 해석 (CR-011). 와이어프레임 06 "내 프로필": 한 줄 요약, 키워드 3개, 나의 특징, 관계에서 편한 점, 대화할 때 참고할 점.
 // 기준: 일간(日干) 10가지에 대해 전통 명리에서 흔히 쓰는 자연물 비유와 오행 분포. 과학적 근거가 아니며 참고용 (AGENTS.md P4).
@@ -15,6 +16,7 @@ export interface ProfileSummary {
   relationshipEase: string[]
   conversationTips: string[]
   notes: string[]
+  details: { traits: ReadingDetail; relationshipEase: ReadingDetail; conversationTips: ReadingDetail }
   disclaimer: string
 }
 
@@ -101,13 +103,13 @@ export function summarizeProfile(chart: SajuChart): ProfileSummary {
   const max = Math.max(...ELEMENTS.map((el) => chart.elements[el]))
   const strongest = ELEMENTS.filter((el) => chart.elements[el] === max)
   const missing = ELEMENTS.filter((el) => chart.elements[el] === 0)
-  traits.push(`원국에서 ${strongest.map((el) => ELEMENT_NAME[el]).join('·')} 기운이 가장 많아, ${ELEMENT_TRAIT[strongest[0]]}이 두드러질 수 있어요.`)
+  traits.push(`원국에서 ${strongest.map((el) => ELEMENT_NAME[el]).join('·')} 기운이 가장 많아, ${strongest.map((el) => ELEMENT_TRAIT[el]).join('・')}이 두드러질 수 있어요.`)
 
   const relationshipEase = [dm.ease]
   const conversationTips = [dm.tip]
   if (missing.length > 0) {
     conversationTips.push(
-      `${missing.map((el) => ELEMENT_NAME[el]).join('·')} 기운이 적은 편이라, 그 기운이 많은 친구와 함께 있으면 서로 채워줄 수 있어요.`,
+      `${missing.map((el) => ELEMENT_NAME[el]).join('·')} 기운은 원국 글자에 나타나지 않아요. 능력이 부족하다는 뜻은 아니니, 일상에서 그 비유가 도움이 되는지 살펴보세요.`,
     )
   }
 
@@ -123,6 +125,11 @@ export function summarizeProfile(chart: SajuChart): ProfileSummary {
     relationshipEase,
     conversationTips,
     notes,
+    details: {
+      traits: { basis: `일간 ${chart.dayMaster.label}을 전통적인 ‘${dm.image}’ 비유로 읽고, 천간·지지의 오행 글자 개수를 함께 봤어요. 동률인 오행은 함께 표시해요. 계절·지장간·용신은 반영하지 않아 성격의 강도를 판단할 수 없어요.`, example: ELEMENT_READING[chart.dayMaster.element ?? strongest[0]].example },
+      relationshipEase: { basis: `일간의 ‘${dm.image}’ 비유를 관계에서 나누고 싶은 태도로 풀었어요. 실제 성향은 경험과 상황에 따라 달라요.`, example: '친구와 약속을 정할 때 “나는 미리 시간을 정하면 편해. 너는 어때?”라고 내 경험을 말하고 상대의 경험도 들어 보세요.' },
+      conversationTips: { basis: '일간 비유와 원국에 나타나지 않는 오행을 대화 질문으로 바꿨어요. 오행이 없다고 결핍이나 특정 성격을 뜻하지 않아요.', example: '답장이 짧아 서운했다면 “오늘 바빴어? 나는 조금 더 이야기하고 싶었어”라고 관찰과 바람을 나눠 말해 보세요.' },
+    },
     disclaimer: PROFILE_DISCLAIMER,
   }
 }

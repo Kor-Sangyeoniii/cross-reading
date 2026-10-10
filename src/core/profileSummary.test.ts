@@ -13,7 +13,7 @@ describe('summarizeProfile', () => {
     expect(s.dayMasterImage).toBe('계수(癸水) · 빗물과 이슬')
     expect(s.keywords).toEqual(['지혜', '감성', '공감'])
     expect(s.traits[s.traits.length - 1]).toContain('쇠(금) 기운이 가장 많아')
-    expect(s.conversationTips.some((t) => t.includes('불(화) 기운이 적은 편'))).toBe(true)
+    expect(s.conversationTips.some((t) => t.includes('불(화) 기운은 원국 글자에 나타나지'))).toBe(true)
     expect(s.notes).toEqual([])
     expect(s.disclaimer).toBe(PROFILE_DISCLAIMER)
   })
