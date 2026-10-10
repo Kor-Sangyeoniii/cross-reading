@@ -7,6 +7,7 @@ describe('matchRoute', () => {
     expect(matchRoute('/me/')).toEqual({ name: 'me' })
     expect(matchRoute('/rooms')).toEqual({ name: 'rooms' })
     expect(matchRoute('/settings')).toEqual({ name: 'settings' })
+    expect(matchRoute('/auth/reset-password')).toEqual({ name: 'resetPassword' })
     expect(matchRoute('/auth/callback')).toEqual({ name: 'callback' })
   })
   it('방 주소는 UUID만', () => {
