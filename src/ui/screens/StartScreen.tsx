@@ -39,14 +39,6 @@ export function StartScreen({ invited }: { invited?: boolean }) {
         )}
       </div>
 
-      {!invited && (
-        <div className="card example stack" style={{ marginBottom: 24 }}>
-          <p className="muted small">우리 모임 궁합</p>
-          <p style={{ fontWeight: 700 }}>우리 모임은 불(화) 기운이 가장 많아요.</p>
-          <p className="muted small">대화 질문 · 여행 갈 때 계획을 세우는 편이야, 즉흥적인 편이야?</p>
-        </div>
-      )}
-
       <section className="stack" aria-labelledby="auth-title">
         <h2 id="auth-title">{mode === 'login' ? '로그인' : '회원가입'}</h2>
         <p className="muted small">
