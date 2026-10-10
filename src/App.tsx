@@ -7,6 +7,7 @@ import { ProfileScreen } from './ui/screens/ProfileScreen'
 import { RoomScreen } from './ui/screens/RoomScreen'
 import { RoomsScreen } from './ui/screens/RoomsScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
+import { ResetPasswordScreen } from './ui/screens/ResetPasswordScreen'
 import { StartScreen } from './ui/screens/StartScreen'
 import { SessionProvider } from './ui/session'
 import { useSession } from './ui/useSession'
@@ -33,7 +34,7 @@ function Routes() {
   const { session, profile, profileError, refreshProfile } = useSession()
 
   const needsRedirect =
-    session && profile !== undefined && route.name !== 'invite' && route.name !== 'callback'
+    session && profile !== undefined && route.name !== 'invite' && route.name !== 'callback' && route.name !== 'resetPassword'
       ? profile === null
         ? route.name !== 'onboarding' && '/onboarding'
         : (route.name === 'home' || route.name === 'onboarding' || route.name === 'notFound') && '/rooms'
@@ -43,6 +44,7 @@ function Routes() {
     if (needsRedirect) navigate(needsRedirect, { replace: true })
   }, [needsRedirect])
 
+  if (route.name === 'resetPassword') return <ResetPasswordScreen />
   if (session === undefined) return <Loading text="불러오고 있어요." />
   if (!session) {
     if (route.name === 'callback') return <Loading text="로그인하고 있어요." />

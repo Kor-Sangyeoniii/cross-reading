@@ -1,4 +1,4 @@
-import type { Session } from '@supabase/supabase-js'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { withBase } from './basePath'
 import { detectInAppBrowser, kakaoOpenExternalUrl } from './inapp'
 import { rememberReturnTo } from './redirect'
@@ -48,8 +48,8 @@ export async function getSession(): Promise<Session | null> {
   return data.session
 }
 
-export function onSessionChange(callback: (session: Session | null) => void): () => void {
-  const { data } = requireClient().auth.onAuthStateChange((_event, session) => callback(session))
+export function onSessionChange(callback: (session: Session | null, event: AuthChangeEvent) => void): () => void {
+  const { data } = requireClient().auth.onAuthStateChange((event, session) => callback(session, event))
   return () => data.subscription.unsubscribe()
 }
 
