@@ -24,7 +24,7 @@ async function open(path='/',recovery=false){
 async function fill(page,signup=false){await page.getByLabel('아이디 (이메일)',{exact:true}).fill('synthetic@example.invalid');await page.getByLabel('비밀번호',{exact:true}).fill('synthetic-pass');if(signup)await page.getByLabel('비밀번호 확인',{exact:true}).fill('synthetic-pass')}
 try {
  const {page,context}=await open();await page.getByRole('heading',{name:'로그인',exact:true}).waitFor();
- for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:out+'/login-'+width+'.png',fullPage:true})}
+ for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await page.screenshot({path:out+'/login-'+width+'.png',fullPage:true})}
  await page.getByRole('button',{name:'회원가입',exact:true}).click();await fill(page,true);
  await page.getByLabel('비밀번호 확인',{exact:true}).fill('different-pass');
  await page.getByRole('button',{name:'아이디·비밀번호로 회원가입',exact:true}).click();await page.getByRole('alert').filter({hasText:'일치하지'}).waitFor();assert.equal(await page.evaluate(()=>window.__auth.emailCalls.length),0);
@@ -32,11 +32,11 @@ try {
  await page.getByRole('button',{name:'아이디·비밀번호로 회원가입',exact:true}).click();
  await page.getByRole('status').filter({hasText:'가입 요청을 처리했어요'}).waitFor();
  assert.equal(await page.getByLabel('비밀번호',{exact:true}).inputValue(),'');assert.equal(await page.getByRole('heading',{name:'시작하기 전에',exact:true}).count(),0);
- assert.equal(await page.evaluate(()=>window.__auth.writes),0);await page.screenshot({path:out+'/confirmation.png',fullPage:true});
+ assert.equal(await page.evaluate(()=>window.__auth.writes),0);if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await page.screenshot({path:out+'/confirmation.png',fullPage:true});
  await page.getByRole('button',{name:'로그인으로 돌아가기',exact:true}).click();await fill(page);await page.evaluate(()=>window.__auth.behavior='throw');
  await page.getByRole('button',{name:'아이디·비밀번호로 로그인',exact:true}).click();await page.getByRole('alert').waitFor();assert.equal(await page.getByText('private provider details').count(),0);assert.ok(await page.getByRole('button',{name:'카카오 계정으로 로그인',exact:true}).isEnabled());
  await page.getByRole('button',{name:'비밀번호를 잊으셨나요?',exact:true}).click();await page.evaluate(()=>window.__auth.behavior='confirm');
- await page.getByRole('button',{name:'재설정 메일 받기',exact:true}).click();await page.getByRole('status').filter({hasText:'가입된 이메일이면'}).waitFor();await page.screenshot({path:out+'/recovery.png',fullPage:true});
+ await page.getByRole('button',{name:'재설정 메일 받기',exact:true}).click();await page.getByRole('status').filter({hasText:'가입된 이메일이면'}).waitFor();if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await page.screenshot({path:out+'/recovery.png',fullPage:true});
  const stored=await page.evaluate(()=>Object.values(sessionStorage).concat(Object.values(localStorage)));assert.ok(stored.every(v=>!v.includes('synthetic-pass')&&!v.includes('synthetic@example.invalid')));
  await context.close();
  for(const existing of [true,false]){

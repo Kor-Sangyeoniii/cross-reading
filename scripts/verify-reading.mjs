@@ -59,7 +59,7 @@ const personal=page.getByRole('region',{name:'나의 개인 사주 풀이'});
 assert.equal(await personal.locator('details').count(),5,'unknown hour excludes hour readings');
 await personal.locator('summary').first().click();
 await personal.getByText(/생활 예시/).first().waitFor();
-await personal.screenshot({path:'/tmp/cross-browser/personal-natal.png',style:'.topbar, .tabs { display: none !important; }'});
+if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await personal.screenshot({path:'/tmp/cross-browser/personal-natal.png',style:'.topbar, .tabs { display: none !important; }'});
 await page.getByRole('tab',{name:'대운',exact:true}).click();
 await personal.locator('select').selectOption('male');
 await personal.getByText(/출생시간이 필요해요/).waitFor();
@@ -71,8 +71,8 @@ await page.getByRole('button',{name:'오늘로 돌아가기'}).click();
 assert.notEqual(await date.inputValue(),'2026-10-12');
 assert.equal(await personal.getByRole('heading',{name:/^(연운|월운|일운) ·/}).count(),3);
 await personal.locator('summary').first().click();
-await personal.screenshot({path:'/tmp/cross-browser/personal-periods.png',style:'.topbar, .tabs { display: none !important; }'});
-for(const width of [360,390,430]) {await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth), 'horizontal overflow at '+width);await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'/tmp/cross-browser/profile-'+width+'.png',fullPage:true})}
+if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await personal.screenshot({path:'/tmp/cross-browser/personal-periods.png',style:'.topbar, .tabs { display: none !important; }'});
+for(const width of [360,390,430]) {await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth), 'horizontal overflow at '+width);await page.evaluate(()=>window.scrollTo(0,0));if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await page.screenshot({path:'/tmp/cross-browser/profile-'+width+'.png',fullPage:true})}
 await page.getByRole('button',{name:/새 메시지가 있는 모임 1개/}).click();
 console.log('check: room');
 await page.getByRole('button',{name:/가상 친구님과 나/}).click();
@@ -147,7 +147,7 @@ assert.equal(await cycles.locator('option').count(),10);
 await cycles.selectOption('0');
 const forward=await kr.getByRole('heading',{name:/선택한 대운/}).textContent();
 await kr.locator('summary').first().click();
-await kr.screenshot({path:'/tmp/cross-browser/personal-luck.png',style:'.topbar, .tabs { display: none !important; }'});
+if (process.env.CR_CAPTURE_SCREENSHOTS === '1') await kr.screenshot({path:'/tmp/cross-browser/personal-luck.png',style:'.topbar, .tabs { display: none !important; }'});
 await kr.getByLabel('대운 순·역행 계산 기준').selectOption('female');
 await kr.getByText(/역행 · 출생 후/).waitFor();
 await cycles.selectOption('0');
