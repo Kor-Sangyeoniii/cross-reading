@@ -7,6 +7,7 @@ import { ErrorNotice, Tabs, TopBar } from '../kit'
 import { navigate } from '../router'
 import { SajuChart } from '../SajuChart'
 import { ElementFlow } from '../ElementFlow'
+import { PersonalCharacter } from '../ChemistryCard'
 import { PersonalReading } from '../PersonalReading'
 import { ReadingDetails } from '../ReadingDetails'
 
@@ -38,6 +39,7 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
         <ErrorNotice message="저장된 생년월일을 다시 확인해 주세요. 설정 > 정보 수정에서 고칠 수 있어요." />
       ) : (
         <div className="stack-lg">
+          <PersonalCharacter element={result.chart.dayMaster.element} />
           <section className="card">
             <p className="muted small">{profile.nickname}님은</p>
             <h2 style={{ fontSize: 21, margin: '4px 0 6px' }}>{result.summary.headline}</h2>

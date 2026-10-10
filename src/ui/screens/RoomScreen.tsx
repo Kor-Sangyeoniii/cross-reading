@@ -8,6 +8,8 @@ import { messageOf } from '../messages'
 import { navigate } from '../router'
 import { useUserId } from '../useSession'
 import { ElementFlow } from '../ElementFlow'
+import { ChemistryCard } from '../ChemistryCard'
+import styles from '../ChemistryCard.module.css'
 import { CompatFactList } from '../ReadingDetails'
 import { useMessageNotices } from '../notices'
 
@@ -139,18 +141,18 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
   const [compat, setCompat] = useState<GroupCompat | null>(null)
   const [error, setError] = useState<{ code?: string; message: string } | null>(null)
   const [pair, setPair] = useState(0)
-  const [interested, setInterested] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
     setCompat(null)
     try {
-      setCompat(await getRoomCompat(roomId))
-      setPair(0)
+      const next = await getRoomCompat(roomId)
+      setCompat(next)
+      setPair(Math.max(0, next.pairs.findIndex((p) => p.a === me || p.b === me)))
     } catch (e) {
       setError({ code: (e as { code?: string }).code, message: messageOf(e) })
     }
-  }, [roomId])
+  }, [roomId, me])
 
   useEffect(() => {
     void load()
@@ -173,18 +175,12 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
   if (!compat) return <Loading text="궁합을 준비하고 있어요." />
 
   const p = compat.pairs[Math.min(pair, compat.pairs.length - 1)]
+  if (!p) return <ErrorNotice message="아직 비교할 조합이 없어요. 잠시 후 다시 확인해 주세요." onRetry={load} />
   const matches = p.facts.filter((f) => f.kind === 'match')
   const diffs = p.facts.filter((f) => f.kind === 'difference')
 
   return (
     <div className="stack-lg">
-      <section className="card">
-        <h2>우리 모임 요약</h2>
-        <CompatFactList facts={compat.facts} />
-      </section>
-
-      <ElementFlow elements={compat.elements} />
-
       {compat.pairs.length > 1 && (
         <div className="field">
           <label htmlFor="pair">누구와 누구를 볼까요?</label>
@@ -196,18 +192,18 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
         </div>
       )}
 
-      <section className="card">
-        <h2>잘 맞는 부분</h2>
-        {matches.length > 0 ? <CompatFactList facts={matches} /> : <p className="muted">눈에 띄는 공통점은 없었어요.</p>}
-      </section>
-      <section className="card">
-        <h2>다르게 느낄 수 있는 부분</h2>
-        {diffs.length > 0 ? <CompatFactList facts={diffs} /> : <p className="muted">눈에 띄는 차이는 없었어요.</p>}
-      </section>
+      <ChemistryCard key={`${p.a}-${p.b}`} pair={p} names={[name(p.a), name(p.b)]} />
+      <details className={styles.details}>
+        <summary>왜 이런 조합일까? · 해석 근거 보기</summary>
+        <div className="stack-lg">
+          <section><h3>잘 통하는 근거</h3>{matches.length > 0 ? <CompatFactList facts={matches} /> : <p className="muted">지금 정보로는 공통점을 더 살펴봐야 해요.</p>}</section>
+          <section><h3>맞춰볼 근거</h3>{diffs.length > 0 ? <CompatFactList facts={diffs} /> : <p className="muted">현재 해석에서 두드러진 차이는 없어요.</p>}</section>
+        </div>
+      </details>
 
       <section className="card stack">
         <h2>이렇게 이야기해 보세요</h2>
-        {(compat.pairs.length > 1 ? compat.questions : p.questions).map((q) => (
+        {p.questions.map((q) => (
           <div key={q} className="stack" style={{ gap: 6 }}>
             <p>“{q}”</p>
             <button className="btn small secondary" type="button" onClick={() => onAsk(q)}>이 질문으로 대화 시작</button>
@@ -219,14 +215,11 @@ function CompatTab({ roomId, members, me, onInvite, onAsk }: {
         <div className="notice">{Array.from(new Set([...compat.notes, ...p.notes])).map((n) => <p key={n}>{n}</p>)}</div>
       )}
 
-      <section className="card stack">
-        <p style={{ fontWeight: 600 }}>관계 코칭에 비용을 낼 의향이 있나요?</p>
-        {interested ? (
-          <p className="notice ok">의견 고마워요! 아직 준비 중인 기능이라 결제나 코칭은 제공되지 않아요.</p>
-        ) : (
-          <button className="btn small secondary" type="button" onClick={() => setInterested(true)}>유료라면 관심 있어요</button>
-        )}
-      </section>
+      <details className={styles.details}>
+        <summary>모임 전체 오행 살펴보기</summary>
+        <section><h2>우리 모임 요약</h2><CompatFactList facts={compat.facts} /></section>
+        <ElementFlow elements={compat.elements} />
+      </details>
       <p className="muted small">{compat.disclaimer}</p>
     </div>
   )

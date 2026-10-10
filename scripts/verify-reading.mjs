@@ -76,7 +76,7 @@ for(const width of [360,390,430]) {await page.setViewportSize({width,height:844}
 await page.getByRole('button',{name:/새 메시지가 있는 모임 1개/}).click();
 console.log('check: room');
 await page.getByRole('button',{name:/가상 친구님과 나/}).click();
-await page.getByRole('heading',{name:'우리 모임 요약'}).waitFor();
+await page.getByRole('region',{name:'한눈에 보는 우리 궁합'}).waitFor();
 await page.locator('[role=tab]').filter({hasText:'대화'}).locator('.badge').waitFor();
 await page.getByRole('tab',{name:/대화/}).click();await page.getByText('가상 첫 메시지',{exact:true}).waitFor();
 console.log('check: read');

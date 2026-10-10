@@ -5,6 +5,8 @@ import { ErrorNotice, Loading, Tabs, TopBar } from '../kit'
 import { messageOf } from '../messages'
 import { navigate } from '../router'
 import { useUserId } from '../useSession'
+import { ChemistryDuo } from '../ChemistryCharacters'
+import styles from '../ChemistryCard.module.css'
 import { useMessageNotices } from '../notices'
 
 // 12 관계 목록: 내가 속한 모임(2~4명). 카드를 누르면 15 궁합 / 16 대화가 있는 모임 화면으로.
@@ -40,10 +42,11 @@ export function RoomsScreen({ nickname }: { nickname: string }) {
       {error && <ErrorNotice message={error} onRetry={load} />}
       {!error && rooms === null && <Loading text="모임을 불러오고 있어요." />}
       {rooms && rooms.length === 0 && (
-        <div className="center">
-          <p style={{ fontWeight: 700 }}>아직 연결된 친구가 없어요</p>
-          <p className="muted">친구를 초대하면 최대 4명이 함께 궁합을 보고 대화할 수 있어요.</p>
-          <button className="btn" type="button" onClick={() => setInviting(true)}>친구 초대하기</button>
+        <div className={styles.empty}>
+          <div className={styles.duo}><ChemistryDuo kinds={['flame', 'cloud']} /></div>
+          <h2>친구 한 명이면,<br />우리 조합이 보여요.</h2>
+          <p>닮은 점과 다른 박자를 캐릭터 한 장에.<br />친구를 초대하고 함께 확인해 보세요.</p>
+          <div className="stack"><button className="btn" type="button" onClick={() => setInviting(true)}>친구 초대하기</button><button className="btn secondary" type="button" onClick={() => navigate('/me')}>내 캐릭터 먼저 보기</button></div>
         </div>
       )}
       {rooms && rooms.length > 0 && (
