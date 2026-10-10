@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { navigate } from './router'
+import { LoadingMark } from './LoadingMark'
 
 // 화면 공통 부품: 머리글, 아래 탭, 아래에서 열리는 패널, 로딩·오류.
 
@@ -65,8 +66,8 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
 
 export function Loading({ text }: { text: string }) {
   return (
-    <div className="center" role="status" aria-live="polite">
-      <div className="spinner" aria-hidden="true" />
+    <div className="center" role="status" aria-live="polite" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
+      <LoadingMark />
       <p className="muted">{text}</p>
     </div>
   )

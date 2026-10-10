@@ -1,0 +1,16 @@
+.mark { display: block; width: 64px; height: 64px; flex-shrink: 0; }
+.left { animation: meet-left 2.4s ease-in-out 2; }
+.right { animation: meet-right 2.4s ease-in-out 2; }
+@keyframes meet-left {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-36px); }
+  65% { transform: translateX(12px); }
+}
+@keyframes meet-right {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(36px); }
+  65% { transform: translateX(-12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .left, .right { animation: none; }
+}
