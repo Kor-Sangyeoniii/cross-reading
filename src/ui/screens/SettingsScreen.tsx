@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { deleteMyAccount } from '../../lib/account'
 import { signOut, startLogin, type LoginProvider } from '../../lib/auth'
 import { updateMyProfile, type MyProfile } from '../../lib/profile'
-import { currentPushSupport, disablePush, enablePush } from '../../lib/push'
+import { currentPushSupport, currentPushState, pushConfigured, disablePush, enablePush } from '../../lib/push'
 import { checkForm, fromProfile, placeSaveError, toBirthInput, toMbti, type FormErrors, type ProfileForm } from '../form'
 import { ErrorNotice, Sheet, TopBar } from '../kit'
 import { messageOf } from '../messages'
@@ -44,14 +44,13 @@ function PushToggle() {
   useEffect(() => {
     if (support !== 'supported') return
     let alive = true
-    navigator.serviceWorker.ready
-      .then((reg) => reg.pushManager.getSubscription())
-      .then((s) => alive && setOn(Boolean(s)))
-      .catch(() => alive && setOn(false))
+    currentPushState(userId)
+      .then((state) => { if (alive) setOn(state === 'enabled') })
+      .catch(() => { if (alive) { setOn(false); setMessage('알림 등록 상태를 확인하지 못했어요. 다시 켜기를 눌러 확인해 주세요.') } })
     return () => {
       alive = false
     }
-  }, [support])
+  }, [support, userId])
 
   async function toggle() {
     setBusy(true)
@@ -74,9 +73,11 @@ function PushToggle() {
   return (
     <section className="card stack">
       <h3>새 메시지 알림</h3>
+      <p className="muted small">관계 목록과 대화 탭에 새 메시지가 표시돼요. 읽음 표시는 이 기기의 현재 브라우저 탭 기준이며, 대화 탭을 열어 확인하면 사라져요.</p>
       {support === 'install_required' && <p className="muted">아이폰은 Safari 공유 버튼 → ‘홈 화면에 추가’로 설치한 뒤 알림을 켤 수 있어요.</p>}
       {support === 'unsupported' && <p className="muted">이 브라우저에서는 알림을 받을 수 없어요.</p>}
-      {support === 'supported' && (
+      {!pushConfigured() && <p className="notice">이 환경에는 알림 연결 설정이 없어 웹 푸시를 켤 수 없어요. 앱 안 새 메시지 표시는 사용할 수 있어요.</p>}
+      {support === 'supported' && pushConfigured() && (
         <>
           <p className="muted small">알림에는 메시지 내용이 보이지 않아요. “새 메시지가 왔어요”만 표시돼요.</p>
           <button className="btn small" type="button" disabled={busy || on === null} onClick={toggle}>

@@ -1,0 +1,12 @@
+.diagram { position: relative; width: 100%; max-width: 360px; aspect-ratio: 300 / 280; margin: 0 auto; color: #718096; }
+.diagram svg { width: 100%; height: 100%; }
+.node { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; border: 2px solid transparent; background: #edf2f7; color: #243b53; cursor: pointer; }
+.node strong { font-size: 21px; }
+.node small { font-size: 11px; }
+.node[data-element='목'] { background: #e3f3e8; }
+.node[data-element='화'] { background: #ffe6e2; }
+.node[data-element='토'] { background: #fff1ce; }
+.node[data-element='금'] { background: #e9edf4; }
+.node[data-element='수'] { background: #e1efff; }
+.node[aria-pressed='true'] { border-color: #334e68; box-shadow: 0 0 0 3px white; }
+.node:focus-visible { outline: 3px solid #334e68; outline-offset: 3px; }

@@ -64,7 +64,7 @@ export async function listMessages(roomId: string, opts: { beforeId?: number; li
 }
 
 /** 메시지 보내기. 사용자가 직접 누를 때만 호출한다(자동 전송 없음). 보낸 뒤 같은 방 사람들에게 알림을 요청한다. */
-export async function sendMessage(roomId: string, senderId: string, body: string): Promise<number> {
+export async function sendMessage(roomId: string, senderId: string, body: string, onPushFailure?: () => void): Promise<number> {
   const text = normalizeMessage(body)
   const { data, error } = await client()
     .from('messages')
@@ -72,7 +72,7 @@ export async function sendMessage(roomId: string, senderId: string, body: string
     .select('id')
     .single()
   if (error || !data) throw toAppError(error)
-  void notifyRoom(data.id)
+  void notifyRoom(data.id).then((ok) => { if (!ok) onPushFailure?.() })
   return data.id
 }
 
@@ -88,7 +88,6 @@ export function subscribeMessages(
   onMessage: (m: ChatMessage) => void,
   handlers: { onDelete?: (messageId: number) => void; onResync?: () => void } = {},
 ): () => void {
-  let subscribedOnce = false
   const channel: RealtimeChannel = client()
     .channel(`room:${roomId}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload) =>
@@ -100,8 +99,7 @@ export function subscribeMessages(
     })
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        if (subscribedOnce) handlers.onResync?.()
-        subscribedOnce = true
+        handlers.onResync?.()
       }
     })
   return () => {

@@ -6,6 +6,9 @@ import { InviteSheet } from '../InviteSheet'
 import { ErrorNotice, Tabs, TopBar } from '../kit'
 import { navigate } from '../router'
 import { SajuChart } from '../SajuChart'
+import { ElementFlow } from '../ElementFlow'
+import { DailyReading } from '../DailyReading'
+import { ReadingDetails } from '../ReadingDetails'
 
 // 06 내 프로필: 한 줄 요약, 키워드, 나의 특징 / 관계에서 편한 점 / 대화할 때 참고할 점, 사주 표.
 // 계산은 이 기기에서 내 정보로만 한다. 사주 근거와 MBTI 근거를 나눠 보여준다.
@@ -49,14 +52,17 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
           <section className="card">
             <h2>나의 특징 <span className="badge">사주</span></h2>
             <ul>{result.summary.traits.map((t) => <li key={t}>{t}</li>)}</ul>
+            <ReadingDetails {...result.summary.details.traits} />
           </section>
           <section className="card">
             <h2>관계에서 편한 점 <span className="badge">사주</span></h2>
             <ul>{result.summary.relationshipEase.map((t) => <li key={t}>{t}</li>)}</ul>
+            <ReadingDetails {...result.summary.details.relationshipEase} />
           </section>
           <section className="card">
             <h2>대화할 때 참고할 점 <span className="badge">사주</span></h2>
             <ul>{result.summary.conversationTips.map((t) => <li key={t}>{t}</li>)}</ul>
+            <ReadingDetails {...result.summary.details.conversationTips} />
           </section>
           <section className="card">
             <h2>MBTI <span className="badge">MBTI</span></h2>
@@ -71,6 +77,8 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
             <div className="notice">{result.summary.notes.map((n) => <p key={n}>{n}</p>)}</div>
           )}
 
+          <ElementFlow elements={result.chart.elements} hourKnown={result.chart.hourKnown} />
+          <DailyReading chart={result.chart} />
           <SajuChart chart={result.chart} nickname={profile.nickname} />
           <p className="muted small">{result.summary.disclaimer}</p>
         </div>
