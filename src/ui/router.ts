@@ -6,6 +6,9 @@ import { stripBase, withBase } from '../lib/basePath'
 
 const EVENT = 'cr:navigate'
 
+export const READING_TOPICS = ['day', 'month', 'year', 'temperament', 'luck', 'natal', 'elements'] as const
+export type ReadingTopic = typeof READING_TOPICS[number]
+
 export function navigate(path: string, opts: { replace?: boolean } = {}): void {
   if (opts.replace) window.history.replaceState(null, '', withBase(path))
   else window.history.pushState(null, '', withBase(path))
@@ -30,6 +33,7 @@ export function usePath(): string {
 export type Route =
   | { name: 'home' }
   | { name: 'me' }
+  | { name: 'reading'; topic: ReadingTopic }
   | { name: 'rooms' }
   | { name: 'room'; roomId: string }
   | { name: 'invite'; token: string }
@@ -50,6 +54,8 @@ export function matchRoute(path: string): Route {
   if (p === '/onboarding') return { name: 'onboarding' }
   if (p === '/auth/reset-password') return { name: 'resetPassword' }
   if (p === '/auth/callback') return { name: 'callback' }
+  const reading = /^\/readings\/([^/]+)$/.exec(p)
+  if (reading && READING_TOPICS.includes(reading[1] as ReadingTopic)) return { name: 'reading', topic: reading[1] as ReadingTopic }
   const room = /^\/rooms\/([^/]+)$/.exec(p)
   if (room && UUID.test(room[1])) return { name: 'room', roomId: room[1] }
   const invite = /^\/invite\/([a-f0-9]{64})$/.exec(p)

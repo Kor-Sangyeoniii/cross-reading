@@ -9,6 +9,8 @@ import { RoomsScreen } from './ui/screens/RoomsScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
 import { ResetPasswordScreen } from './ui/screens/ResetPasswordScreen'
 import { StartScreen } from './ui/screens/StartScreen'
+import { HomeScreen } from './ui/screens/HomeScreen'
+import { ReadingScreen } from './ui/screens/ReadingScreen'
 import { SessionProvider } from './ui/session'
 import { useSession } from './ui/useSession'
 import { MessageNoticeProvider } from './ui/MessageNoticeProvider'
@@ -37,7 +39,7 @@ function Routes() {
     session && profile !== undefined && route.name !== 'invite' && route.name !== 'callback' && route.name !== 'resetPassword'
       ? profile === null
         ? route.name !== 'onboarding' && '/onboarding'
-        : (route.name === 'home' || route.name === 'onboarding' || route.name === 'notFound') && '/rooms'
+        : (route.name === 'onboarding' || route.name === 'notFound') && '/'
       : false
 
   useEffect(() => {
@@ -63,6 +65,10 @@ function Routes() {
   if (!profile) return <OnboardingScreen />
 
   switch (route.name) {
+    case 'home':
+      return <HomeScreen profile={profile} />
+    case 'reading':
+      return <ReadingScreen key={route.topic} topic={route.topic} profile={profile} />
     case 'me':
       return <ProfileScreen profile={profile} />
     case 'settings':
