@@ -24,6 +24,8 @@ try {
  const {page,context}=await open(multi);const card=page.getByRole('region',{name:'한눈에 보는 우리 궁합'});
  await card.getByRole('heading',{name:'서로의 부스터',exact:true}).waitFor();
  assert.equal(await card.locator('svg').count(),2);
+ assert.equal(await card.locator('svg image').count(),2);
+ const atlasSize=await page.evaluate(async()=>{const image=new Image();image.src='/characters/guardians.png';await image.decode();return [image.naturalWidth,image.naturalHeight]});assert.deepEqual(atlasSize,[2172,724]);
  assert.equal(await card.locator('svg').first().evaluate(e=>getComputedStyle(e).animationName),'none');
  const hero=await card.locator('h2').boundingBox();assert.ok(hero.y<450,'result title must appear in first viewport');
  for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))}
@@ -39,7 +41,7 @@ try {
  assert.ok(!(await sheet.textContent()).includes('가상 친구'));
  await sheet.getByRole('button',{name:'이미지 공유 또는 저장',exact:true}).click();assert.equal(await sheet.getByText('공유 요청을 완료했어요.').count(),0);
  await page.evaluate(()=>window.__cancelShare=false);await sheet.getByRole('button',{name:'이미지 공유 또는 저장',exact:true}).click();await sheet.getByRole('status').filter({hasText:'공유 요청을 완료했어요'}).waitFor();
- const shared=await page.evaluate(()=>window.__shareResult);assert.equal(shared.type,'image/png');assert.ok(shared.size>10000);assert.deepEqual(shared.header,[137,80,78,71,13,10,26,10]);assert.ok(!shared.text.includes('/rooms/')&&!shared.text.includes('/invite/')&&!shared.text.includes('가상'));
+ const shared=await page.evaluate(()=>window.__shareResult);assert.equal(shared.type,'image/png');assert.ok(shared.size>100000,'PNG includes detailed guardian artwork');assert.deepEqual(shared.header,[137,80,78,71,13,10,26,10]);assert.ok(!shared.text.includes('/rooms/')&&!shared.text.includes('/invite/')&&!shared.text.includes('가상'));
  await sheet.getByRole('button',{name:'닫기',exact:true}).click();
  // Probe download fallback without allowing a filesystem download or external share.
  const fallback=await page.evaluate(async()=>{const {sendOrSaveChemistry}=await import('/src/lib/chemistryShare.ts');Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false});const original=HTMLAnchorElement.prototype.click;let clicks=0;HTMLAnchorElement.prototype.click=function(){if(this.download==='cross-reading-chemistry.png')clicks++};try{return {result:await sendOrSaveChemistry(new File(['synthetic'],'cross-reading-chemistry.png',{type:'image/png'}),window.__compat.pairs[0]),clicks}}finally{HTMLAnchorElement.prototype.click=original}});assert.deepEqual(fallback,{result:'downloaded',clicks:1});

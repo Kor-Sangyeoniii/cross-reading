@@ -1,7 +1,15 @@
 import type { CharacterKind } from './chemistry'
 
 // Original inline vector mascots; no external image request or personal seed.
-export function characterDrawing(kind: CharacterKind, alternate = false) {
+export function characterDrawing(kind: CharacterKind, alternate = false, atlas?: string) {
+  if (atlas) {
+    // Display a bounded region of the original atlas; never change the source asset.
+    const bounds: Record<CharacterKind, [number, number]> = { sprout: [0, 460], flame: [465, 390], sun: [860, 455], star: [1320, 425], cloud: [1750, 422] }
+    const [start, width] = bounds[kind]
+    const scale = 164 / 650, left = (164 - width * scale) / 2
+    const source = atlas.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+    return `<defs><clipPath id="guardian-${kind}"><rect x="${left}" y="0" width="${width * scale}" height="164" /></clipPath></defs><image clip-path="url(#guardian-${kind})" href="${source}" x="${left - start * scale}" y="${-40 * scale}" width="${2172 * scale}" height="${724 * scale}" />`
+  }
   const shape: Record<CharacterKind, string> = {
     sprout: '<path d="M43 98 Q25 81 45 65 Q35 44 57 41 Q65 12 82 31 Q110 24 114 49 Q141 61 120 85 Q135 112 107 123 Q85 147 61 127 Q36 128 43 98Z" fill="#9cce59"/><path d="M79 37Q60 18 54 31Q57 44 79 43M81 36Q91 13 104 22Q108 38 81 43" fill="#447c42"/>',
     sun: '<path d="M81 19L94 32L112 26L117 44L137 48L132 68L148 82L132 98L137 117L115 122L108 140L90 134L74 148L60 130L40 134L34 114L15 106L24 86L13 68L33 57L33 36L56 38L66 19Z" fill="#f5bc4f"/><circle cx="81" cy="82" r="48" fill="#ffda77"/>',
