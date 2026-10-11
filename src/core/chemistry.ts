@@ -39,9 +39,9 @@ export function chemistryStory(pair: PairCompat) {
   return { kind, ...CHEMISTRY_STORIES[kind], matches, differences }
 }
 export const CHARACTER_PROFILES: Record<string, { kind: CharacterKind; name: string; line: string }> = {
-  목: { kind: 'sprout', name: '새싹 탐험가', line: '새로운 시작을 떠올리게 하는 나무의 이미지' },
-  화: { kind: 'flame', name: '반짝 불꽃', line: '마음을 표현하는 장면을 떠올리는 불의 이미지' },
-  토: { kind: 'sun', name: '포근한 중심', line: '곁을 든든하게 채우는 흙의 이미지' },
-  금: { kind: 'star', name: '또렷한 별', line: '필요한 것을 고르는 쇠의 이미지' },
-  수: { kind: 'cloud', name: '몽글 사색가', line: '생각과 쉼을 떠올리게 하는 물의 이미지' },
+  목: { kind: 'sprout', name: '모리 · 새싹 탐험가', line: '“일단 한 걸음 가볼까?” 호기심을 품은 목의 정령' },
+  화: { kind: 'flame', name: '타오 · 불꽃 응원단', line: '“네 편은 여기 있어!” 마음을 표현하는 화의 정령' },
+  토: { kind: 'sun', name: '도담 · 포근한 중심', line: '“급하면 잠깐 기대.” 곁을 지키는 토의 정령' },
+  금: { kind: 'star', name: '반디 · 또렷한 별', line: '“내 기준은 소중하니까.” 선을 아는 금의 정령' },
+  수: { kind: 'cloud', name: '몽울 · 느긋한 사색가', line: '“생각도 쉬어야 반짝여.” 쉼을 품은 수의 정령' },
 }

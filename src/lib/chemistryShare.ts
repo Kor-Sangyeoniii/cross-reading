@@ -3,15 +3,31 @@ import { chemistryStory } from '../core/chemistry'
 import { characterDrawing } from '../core/characterArt'
 import { withBase } from './basePath'
 
-export function chemistryShareSvg(pair: PairCompat): string {
+export function chemistryShareSvg(pair: PairCompat, atlas?: string): string {
   const story = chemistryStory(pair)
   // Only catalog copy goes into the export: never IDs, names, notes, or fact text.
   const match = story.matches[0]?.title ?? '우리의 공통점은 알아가는 중'
   const difference = story.differences[0]?.title ?? '눈에 띄는 차이는 아직 없어요'
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><rect width="1080" height="1350" rx="60" fill="${story.color}"/><g font-family="system-ui, sans-serif" fill="#242838"><text x="70" y="108" font-size="28" font-weight="800" letter-spacing="5">CROSS READING · OUR CHEMISTRY</text><text x="540" y="245" text-anchor="middle" font-size="88" font-weight="900">${story.title}</text><text x="540" y="304" text-anchor="middle" font-size="31">${story.tag}</text><ellipse cx="540" cy="726" rx="400" ry="28" fill="#242838" opacity=".08"/><g transform="translate(90 352) scale(2.65)">${characterDrawing(story.characters[0])}</g><g transform="translate(565 352) scale(2.65)">${characterDrawing(story.characters[1], true)}</g><text x="535" y="548" text-anchor="middle" font-size="70">✦</text><rect x="64" y="794" width="952" height="322" rx="36" fill="#fff"/><text x="112" y="859" font-size="29" fill="#38734c" font-weight="800">잘 통하는 포인트</text><text x="112" y="916" font-size="36" font-weight="700">${match}</text><path d="M112 950H968" stroke="#e4e0db"/><text x="112" y="1009" font-size="29" fill="#a74a31" font-weight="800">맞춰볼 포인트</text><text x="112" y="1065" font-size="36" font-weight="700">${difference}</text><text x="540" y="1190" text-anchor="middle" font-size="36" font-weight="800">너랑 나는 무슨 조합일까?</text><text x="540" y="1246" text-anchor="middle" font-size="26">kor-sangyeoniii.github.io/cross-reading/</text><text x="540" y="1305" text-anchor="middle" font-size="22">사주·공개한 MBTI를 활용한 참고용 비유 · 관계를 판정하지 않아요</text></g></svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><rect width="1080" height="1350" rx="60" fill="${story.color}"/><g font-family="system-ui, sans-serif" fill="#242838"><text x="70" y="108" font-size="28" font-weight="800" letter-spacing="5">CROSS READING · OUR CHEMISTRY</text><text x="540" y="245" text-anchor="middle" font-size="88" font-weight="900">${story.title}</text><text x="540" y="304" text-anchor="middle" font-size="31">${story.tag}</text><ellipse cx="540" cy="726" rx="400" ry="28" fill="#242838" opacity=".08"/><g transform="translate(90 352) scale(2.65)">${characterDrawing(story.characters[0], false, atlas)}</g><g transform="translate(565 352) scale(2.65)">${characterDrawing(story.characters[1], true, atlas)}</g><text x="535" y="548" text-anchor="middle" font-size="70">✦</text><rect x="64" y="794" width="952" height="322" rx="36" fill="#fff"/><text x="112" y="859" font-size="29" fill="#38734c" font-weight="800">잘 통하는 포인트</text><text x="112" y="916" font-size="36" font-weight="700">${match}</text><path d="M112 950H968" stroke="#e4e0db"/><text x="112" y="1009" font-size="29" fill="#a74a31" font-weight="800">맞춰볼 포인트</text><text x="112" y="1065" font-size="36" font-weight="700">${difference}</text><text x="540" y="1190" text-anchor="middle" font-size="36" font-weight="800">너랑 나는 무슨 조합일까?</text><text x="540" y="1246" text-anchor="middle" font-size="26">kor-sangyeoniii.github.io/cross-reading/</text><text x="540" y="1305" text-anchor="middle" font-size="22">사주·공개한 MBTI를 활용한 참고용 비유 · 관계를 판정하지 않아요</text></g></svg>`
+}
+let atlasData: Promise<string> | undefined
+function shareAtlas() {
+  if (!atlasData) atlasData = fetch(withBase('/characters/guardians.png')).then(async (response) => {
+    if (!response.ok) throw new Error('캐릭터를 불러오지 못했어요.')
+    const blob = await response.blob()
+    if (blob.type !== 'image/png') throw new Error('캐릭터를 불러오지 못했어요.')
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(new Error('캐릭터를 불러오지 못했어요.'))
+      reader.readAsDataURL(blob)
+    })
+  }).catch((error) => { atlasData = undefined; throw error })
+  return atlasData
 }
 export async function chemistryShareFile(pair: PairCompat): Promise<File> {
-  const url = URL.createObjectURL(new Blob([chemistryShareSvg(pair)], { type: 'image/svg+xml' }))
+  const atlas = await shareAtlas()
+  const url = URL.createObjectURL(new Blob([chemistryShareSvg(pair, atlas)], { type: 'image/svg+xml' }))
   try {
     const image = new Image()
     image.src = url
