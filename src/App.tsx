@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
+const DatingPilot = lazy(() => import('./ui/dating/DatingPilot').then(m => ({ default: m.DatingPilot })))
+const DatingEntry = lazy(() => import('./ui/dating/DatingEntry').then(m => ({ default: m.DatingEntry })))
 import { ErrorNotice, Loading } from './ui/kit'
 import { matchRoute, navigate, usePath } from './ui/router'
 import { InviteScreen } from './ui/screens/InviteScreen'
@@ -19,6 +21,9 @@ import { MessageNoticeProvider } from './ui/MessageNoticeProvider'
 // 초대 링크는 프로필이 없어도 초대 전용 짧은 경로(11 → 19)로 바로 간다.
 
 export default function App() {
+  const path = usePath()
+  const route = matchRoute(path)
+  if (route.name === 'dating' || route.name === 'datingDemo') return <div className="app"><Suspense fallback={<Loading text="소개를 준비하고 있어요." />}>{route.name === 'datingDemo' ? <DatingPilot /> : <DatingEntry />}</Suspense></div>
   return (
     <SessionProvider>
       <MessageNoticeProvider>

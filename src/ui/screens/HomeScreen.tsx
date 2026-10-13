@@ -15,6 +15,7 @@ export function HomeScreen({ profile }: { profile: MyProfile }) {
         <span><small>{seoulToday().replace(/-/g, '.')} · 나를 위한 하루</small><strong>오늘의 운세</strong><p>오늘의 흐름을 가볍게 읽어봐요.</p><b>오늘 풀이 열기 →</b></span>
         <span aria-hidden="true"><ChemistryCharacter kind="sun" /></span>
       </button>
+      <button className={styles.relationship} type="button" onClick={() => navigate('/dating')}><span><strong>만날 수 있는 거리, 마음이 겹치는 시간</strong><small>새로운 소개 · 가상 인물 4명으로 체험하기</small></span><span aria-hidden="true">↗</span></button>
       <section aria-label="원하는 풀이 고르기"><h2 className={styles.sectionTitle}>보고 싶은 풀이를 골라보세요</h2><ReadingMenu topics={['temperament', 'month', 'year', 'luck']} /></section>
       <button className={styles.relationship} type="button" onClick={() => navigate('/rooms')}><span><strong>우리 궁합은 어떨까?</strong><small>친구와의 조합과 대화 보러 가기</small></span><span aria-hidden="true">↗</span></button>
       <section aria-label="내 사주 더 알아보기"><h2 className={styles.sectionTitle}>내 사주를 더 알고 싶다면</h2><ReadingMenu topics={['natal', 'elements']} /></section>
