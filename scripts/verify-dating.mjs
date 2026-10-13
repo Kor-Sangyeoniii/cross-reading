@@ -1,0 +1,65 @@
+// Public synthetic journey. No screenshots, real accounts, payment APIs or external traffic.
+import assert from 'node:assert/strict';
+const { chromium } = await import(process.env.CR_PLAYWRIGHT_MODULE ?? '/tmp/cross-motion/node_modules/playwright/index.mjs');
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] });
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ko-KR', reducedMotion: 'reduce' });
+const base=(process.env.CR_DATING_BASE_URL ?? 'http://127.0.0.1:5173').replace(/\/$/,'');
+const errors=[], passed=[]; let external=0;
+await context.route('**/*', route => { const u=new URL(route.request().url()); if(!['127.0.0.1','localhost'].includes(u.hostname)) { external++; return route.abort(); } return route.continue(); });
+const page=await context.newPage();page.setDefaultTimeout(8000);page.on('pageerror',e=>errors.push(e.message));
+const pick=async name=>page.getByRole('region',{name:'가상 인물 선택'}).getByRole('button',{name,exact:true}).click();
+const nav=async name=>page.getByRole('navigation',{name:'소개팅 메뉴'}).getByRole('button',{name,exact:true}).click();
+const open=async name=>page.getByRole('button',{name:new RegExp(name+'.*소개 자세히 보기')}).click();
+const pay=async()=>{await page.getByRole('checkbox').check();await page.getByRole('button',{name:'가상 3,000원 결제하기',exact:true}).click();};
+try {
+ await page.goto(base+'/dating');
+ await page.getByRole('heading',{name:'가깝게 살고, 시간이 맞고, 서로 궁금하다면.'}).waitFor();
+ await page.getByRole('button',{name:'가상 인물 4명으로 체험하기'}).click();
+ await page.getByRole('heading',{name:'오늘, 알아가 볼 사람'}).waitFor();
+ assert.equal(new URL(page.url()).pathname,new URL(base+'/dating/demo').pathname);
+ for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ passed.push('public entry, four fictional personas, 360/390/430px without overflow');
+ await open('타오');await page.getByRole('button',{name:'관심 보내기',exact:true}).click();
+ assert.equal(await page.getByRole('button',{name:'가상 3,000원 결제하기',exact:true}).count(),0);
+ await pick('타오');await open('모리');await page.getByRole('button',{name:'나도 관심 있어요'}).click();
+ assert.equal(await page.getByRole('button',{name:'가상 3,000원 결제하기'}).isEnabled(),false);
+ await pay();assert.equal(await page.getByRole('region',{name:'서로의 대화'}).count(),0);
+ passed.push('mutual interest required, consent required, one payment keeps chat closed');
+ await pick('모리');await open('타오');await pay();
+ await page.getByRole('region',{name:'서로의 대화'}).waitFor();
+ for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ await page.getByRole('textbox',{name:'메시지',exact:true}).fill('주말 산책을 같이 이야기해요');
+ await page.getByRole('button',{name:'보내기',exact:true}).click();
+ await pick('타오');
+ await page.getByLabel('새 메시지 1개',{exact:true}).waitFor();
+ await page.getByRole('navigation',{name:'소개팅 메뉴'}).getByRole('button',{name:/연결/}).click();
+ await page.getByRole('button',{name:/모리.*대화가 열렸어요/}).click();
+ await page.getByRole('log').getByText('주말 산책을 같이 이야기해요').waitFor();
+ assert.equal(await page.getByLabel('새 메시지 1개',{exact:true}).count(),0);
+ await page.getByRole('textbox',{name:'메시지',exact:true}).fill('https://example.com');await page.getByRole('button',{name:'보내기',exact:true}).click();await page.getByRole('alert').getByText(/외부 링크 없이/).waitFor();
+ await page.getByRole('textbox',{name:'메시지',exact:true}).fill('투자와 송금 이야기는 하지 말아요');await page.getByRole('button',{name:'보내기',exact:true}).click();await page.getByRole('log').getByText(/금전·투자 권유/).waitFor();
+ passed.push('both payments open chat; unread survives actor switch and clears on read; link guard and money warning');
+ await pick('모리');await nav('소개');await open('타오');
+ await page.getByText('불편한 일이 있나요? 신고·차단',{exact:true}).click();
+ await page.getByRole('button',{name:'신고 접수하기',exact:true}).click();
+ await page.getByRole('region',{name:'서로의 대화'}).waitFor();
+ await nav('지원');await page.getByText('가상 운영자 검토 체험',{exact:true}).click();
+ await page.getByRole('button',{name:'위반 확인·제한 재현',exact:true}).click();
+ await pick('타오');await page.getByRole('button',{name:'이의제기 요청',exact:true}).click();
+ await page.getByRole('button',{name:'이의제기 검토 중',exact:true}).waitFor();
+ await nav('내 소개');assert.equal(await page.getByRole('button',{name:'이번 주 소개 받을게요'}).isEnabled(),false);
+ passed.push('report alone does not restrict; explicit review restricts, appeal works, self-unrestriction forbidden');
+ await page.getByRole('button',{name:'체험 도구 열기'}).click();await page.getByRole('button',{name:'체험 초기화',exact:true}).click();await pick('모리');await nav('소개');
+ await open('타오');await page.getByRole('button',{name:'관심 보내기',exact:true}).click();await pick('타오');await open('모리');await page.getByRole('button',{name:'나도 관심 있어요'}).click();await pay();
+ await page.getByRole('button',{name:'24시간 지나기',exact:true}).click();
+ await page.getByText('내 결제: 전액 환불 처리 중',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'환불 실패 재현'}).click();await page.getByText('내 결제: 환불 재처리 필요',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'가상 환불 완료 확인'}).click();await page.getByText('내 결제: 전액 환불 완료',{exact:true}).waitFor();
+ passed.push('deadline expiry, refund pending/failure/retry/completion with no actual payment');
+ await page.getByRole('button',{name:'7일 지나기',exact:true}).click();await nav('소개');await page.getByRole('heading',{name:'지금은 소개를 쉬고 있어요'}).waitFor();
+ await nav('내 소개');await page.getByRole('button',{name:'이번 주 소개 받을게요'}).click();await page.getByRole('heading',{name:'소개를 받을 준비가 됐어요'}).waitFor();
+ await page.reload();await page.getByRole('heading',{name:'오늘, 알아가 볼 사람'}).waitFor();await nav('연결');await page.getByRole('heading',{name:'아직 건넨 인사가 없어요'}).waitFor();
+ passed.push('seven-day inactivity and explicit return; reload discards all synthetic conversation data');
+ assert.equal(external,0);assert.deepEqual(errors,[]);
+ console.log(JSON.stringify({passed,externalRequests:external,pageErrors:errors.length,screenshots:0}));
+}finally{await browser.close();}
