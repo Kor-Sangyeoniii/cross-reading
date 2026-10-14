@@ -7,13 +7,15 @@ import { APP_TABS, Tabs, type AppTab } from './kit'
 import { navigate, type ReadingTopic } from './router'
 import { READING_MENU } from './readingCatalog'
 import { ZodiacCard } from './ZodiacCard'
+import { zodiacPersona } from '../core/zodiac'
+import { TrialProfileEditor } from './TrialProfileEditor'
 import { PersonalReading } from './PersonalReading'
 import { ElementFlow } from './ElementFlow'
 import { ReadingDetails } from './ReadingDetails'
 import { DatingGuide, type GuideProgress } from './dating/DatingGuide'
 import styles from './TrialApp.module.css'
 
-// Deliberately synthetic. No auth session, real profile, storage or external calls.
+// Defaults are synthetic. User-selected comparison inputs stay in memory only.
 const SAMPLE: MyProfile = {
   nickname: '가상 산책러',
   birth: {
@@ -39,6 +41,9 @@ function selectedTab(): AppTab {
   return APP_TABS.find((tab) => tab.id === hash)?.id ?? 'home'
 }
 export function TrialApp() {
+  const [profile, setProfile] = useState<MyProfile>(SAMPLE)
+  const [custom, setCustom] = useState(false)
+  const [revision, setRevision] = useState(0)
   const [tab, setTab] = useState<AppTab>(selectedTab)
   const [topic, setTopic] = useState<ReadingTopic | null>(null)
   const [progress, setProgress] = useState<GuideProgress>({
@@ -51,7 +56,7 @@ export function TrialApp() {
     () => document.visibilityState !== 'hidden',
   )
   const heading = useRef<HTMLHeadingElement>(null)
-  const chart = useMemo(() => computeSaju(SAMPLE.birth), [])
+  const chart = useMemo(() => computeSaju(profile.birth), [profile.birth])
   const summary = useMemo(() => summarizeProfile(chart), [chart])
   const day = TEN_GOD_READING[personalPeriods(chart, seoulToday()).day.stemGod]
   const guideVisible =
@@ -86,6 +91,12 @@ export function TrialApp() {
   useEffect(() => {
     if (guideVisible && pageVisible) setRead(progress.messageCount)
   }, [guideVisible, pageVisible, progress.messageCount])
+  function applyProfile(next: MyProfile, changed: boolean) {
+    setProfile(next)
+    setCustom(changed)
+    setRevision((value) => value + 1)
+    if (tab === 'settings') choose('me')
+  }
   function openTopic(next: ReadingTopic) {
     choose('me')
     setTopic(next)
@@ -93,7 +104,7 @@ export function TrialApp() {
   return (
     <main className={`screen with-tabs ${styles.app}`}>
       <div className={styles.banner}>
-        테스트 모드 · 가상 프로필 · 실제 결제·전송 없음
+        테스트 모드 · 선택 정보는 이 화면에서만 사용
       </div>
       <header className={styles.header}>
         <b>
@@ -119,13 +130,19 @@ export function TrialApp() {
       {tab === 'home' && (
         <div className="stack-lg">
           <section className={styles.today}>
-            <span>{seoulToday()} · 가상 인물의 오늘 풀이</span>
+            <span>
+              {seoulToday()} ·{' '}
+              {custom ? '선택한 출생정보의 오늘 풀이' : '가상 인물의 오늘 풀이'}
+            </span>
             <h2>{day.theme}</h2>
             <p>{day.meaning}</p>
             <button className="btn" onClick={() => openTopic('day')}>
               오늘 풀이 열기
             </button>
           </section>
+          <button className="btn secondary" onClick={() => choose('me')}>
+            출생일·MBTI 바꾸기
+          </button>
           <section className="card">
             <h2>
               {progress.hasConnection
@@ -164,12 +181,15 @@ export function TrialApp() {
           </section>
           <button className={styles.characterLink} onClick={() => choose('me')}>
             <span>나의 일주 수호신</span>
-            <strong>불꽃 원숭이 ↗</strong>
+            <strong>{zodiacPersona(chart).title} ↗</strong>
             <small>일지의 동물과 일간의 오행으로 보는 모습</small>
           </button>
           <p className="muted small">
-            지금은 가상 출생정보로 계산해요. 내 풀이는 계정 가입·로그인 후 볼 수
-            있어요. 사주는 자기 탐색을 위한 참고 이야기예요.
+            {custom
+              ? '선택한 출생정보로 계산했어요. '
+              : '처음에는 가상 출생정보로 계산해요. '}
+            내 사주에서 날짜와 MBTI를 바꿔 비교할 수 있어요. 사주는 자기 탐색을
+            위한 참고 이야기예요.
           </p>
         </div>
       )}
@@ -177,7 +197,19 @@ export function TrialApp() {
         <div className="stack-lg">
           {!topic ? (
             <>
-              <ZodiacCard chart={chart} example />
+              <TrialProfileEditor
+                profile={profile}
+                example={SAMPLE}
+                onApply={applyProfile}
+              />
+              <section className="card" aria-label="선택한 MBTI">
+                <h2>내가 고른 MBTI</h2>
+                <p>{profile.mbti ?? '아직 선택하지 않았어요.'}</p>
+                <p className="muted small">
+                  직접 선택한 유형이에요. 사주와 별도로 참고해요.
+                </p>
+              </section>
+              <ZodiacCard chart={chart} example={!custom} />
               <section aria-label="풀이 주제">
                 <h2>어떤 이야기가 궁금하세요?</h2>
                 <div className={styles.grid}>
@@ -196,10 +228,19 @@ export function TrialApp() {
                 내 사주 목록으로
               </button>
               <p className="notice small">
-                가상 출생정보로 계산한 참고용 풀이예요. 실제 내 결과가 아니에요.
+                {custom
+                  ? '선택한 출생정보로 계산한 참고용 풀이예요.'
+                  : '가상 출생정보로 계산한 참고용 풀이예요. 실제 내 결과가 아니에요.'}
               </p>
               {topic === 'temperament' ? (
                 <>
+                  <section className="card" aria-label="선택한 MBTI">
+                    <h2>내가 고른 MBTI</h2>
+                    <p>{profile.mbti ?? '아직 선택하지 않았어요.'}</p>
+                    <p className="muted small">
+                      사주 해석과 별도로 참고하는 직접 선택한 유형이에요.
+                    </p>
+                  </section>
                   <section className="card">
                     <h2>{summary.headline}</h2>
                     <p>{summary.dayMasterImage}</p>
@@ -233,9 +274,9 @@ export function TrialApp() {
                 />
               ) : (
                 <PersonalReading
-                  key={topic}
+                  key={`${topic}-${revision}`}
                   chart={chart}
-                  birth={SAMPLE.birth}
+                  birth={profile.birth}
                   mode={topic}
                 />
               )}
@@ -271,13 +312,18 @@ export function TrialApp() {
           <section className="card stack">
             <h2>지금은 테스트 프로필이에요</h2>
             <p>
-              가상 산책러의 사주와 소개 흐름을 살펴보고 있어요. 입력한
+              출생일·출생시간·MBTI를 바꿔 사주를 비교할 수 있어요. 선택 정보와
               별명·대화는 이 화면의 메모리에서만 쓰고 새로고침하면 초기화해요.
             </p>
             <button className="btn" onClick={() => navigate('/')}>
               회원가입·로그인
             </button>
           </section>
+          <TrialProfileEditor
+            profile={profile}
+            example={SAMPLE}
+            onApply={applyProfile}
+          />
           <section className="card stack">
             <h2>연결·결제 상태</h2>
             <p>

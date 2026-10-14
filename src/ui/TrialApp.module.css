@@ -121,3 +121,17 @@
 .app [hidden] {
   display: none !important;
 }
+
+.profileEditor {
+  border: 1px solid #c6dacc;
+}
+.profileEditor h2 {
+  font-size: 20px;
+}
+.profileEditor form,
+.profileEditor label,
+.profileEditor input,
+.profileEditor select {
+  min-width: 0;
+  max-width: 100%;
+}
