@@ -1,6 +1,16 @@
 import { useEffect, lazy, Suspense } from 'react'
-const DatingPilot = lazy(() => import('./ui/dating/DatingPilot').then(m => ({ default: m.DatingPilot })))
-const DatingEntry = lazy(() => import('./ui/dating/DatingEntry').then(m => ({ default: m.DatingEntry })))
+const TrialApp = lazy(() =>
+  import('./ui/TrialApp').then((m) => ({ default: m.TrialApp })),
+)
+const DatingGuide = lazy(() =>
+  import('./ui/dating/DatingGuide').then((m) => ({ default: m.DatingGuide })),
+)
+const DatingPilot = lazy(() =>
+  import('./ui/dating/DatingPilot').then((m) => ({ default: m.DatingPilot })),
+)
+const DatingEntry = lazy(() =>
+  import('./ui/dating/DatingEntry').then((m) => ({ default: m.DatingEntry })),
+)
 import { ErrorNotice, Loading } from './ui/kit'
 import { matchRoute, navigate, usePath } from './ui/router'
 import { InviteScreen } from './ui/screens/InviteScreen'
@@ -23,13 +33,30 @@ import { MessageNoticeProvider } from './ui/MessageNoticeProvider'
 export default function App() {
   const path = usePath()
   const route = matchRoute(path)
-  if (route.name === 'dating' || route.name === 'datingDemo') return <div className="app"><Suspense fallback={<Loading text="소개를 준비하고 있어요." />}>{route.name === 'datingDemo' ? <DatingPilot /> : <DatingEntry />}</Suspense></div>
+  if (
+    route.name === 'trial' ||
+    route.name === 'datingDemo' ||
+    route.name === 'datingLab'
+  )
+    return (
+      <div className="app">
+        <Suspense fallback={<Loading text="화면을 준비하고 있어요." />}>
+          {route.name === 'trial' ? (
+            <TrialApp />
+          ) : route.name === 'datingDemo' ? (
+            <DatingGuide />
+          ) : (
+            <DatingPilot />
+          )}
+        </Suspense>
+      </div>
+    )
   return (
     <SessionProvider>
       <MessageNoticeProvider>
-      <div className="app">
-        <Routes />
-      </div>
+        <div className="app">
+          <Routes />
+        </div>
       </MessageNoticeProvider>
     </SessionProvider>
   )
@@ -41,7 +68,12 @@ function Routes() {
   const { session, profile, profileError, refreshProfile } = useSession()
 
   const needsRedirect =
-    session && profile !== undefined && route.name !== 'invite' && route.name !== 'callback' && route.name !== 'resetPassword'
+    session &&
+    profile !== undefined &&
+    route.name !== 'dating' &&
+    route.name !== 'invite' &&
+    route.name !== 'callback' &&
+    route.name !== 'resetPassword'
       ? profile === null
         ? route.name !== 'onboarding' && '/onboarding'
         : (route.name === 'onboarding' || route.name === 'notFound') && '/'
@@ -51,6 +83,12 @@ function Routes() {
     if (needsRedirect) navigate(needsRedirect, { replace: true })
   }, [needsRedirect])
 
+  if (route.name === 'dating')
+    return (
+      <Suspense fallback={<Loading text="소개를 준비하고 있어요." />}>
+        <DatingEntry />
+      </Suspense>
+    )
   if (route.name === 'resetPassword') return <ResetPasswordScreen />
   if (session === undefined) return <Loading text="불러오고 있어요." />
   if (!session) {
@@ -60,26 +98,45 @@ function Routes() {
   if (profileError) {
     return (
       <main className="screen" style={{ paddingTop: 48 }}>
-        <ErrorNotice message="내 정보를 불러오지 못했어요." onRetry={refreshProfile} />
+        <ErrorNotice
+          message="내 정보를 불러오지 못했어요."
+          onRetry={refreshProfile}
+        />
       </main>
     )
   }
-  if (profile === undefined || route.name === 'callback' || needsRedirect) return <Loading text="불러오고 있어요." />
+  if (profile === undefined || route.name === 'callback' || needsRedirect)
+    return <Loading text="불러오고 있어요." />
 
-  if (route.name === 'invite') return <InviteScreen key={route.token} token={route.token} profile={profile} />
+  if (route.name === 'invite')
+    return (
+      <InviteScreen key={route.token} token={route.token} profile={profile} />
+    )
   if (!profile) return <OnboardingScreen />
 
   switch (route.name) {
     case 'home':
       return <HomeScreen profile={profile} />
     case 'reading':
-      return <ReadingScreen key={route.topic} topic={route.topic} profile={profile} />
+      return (
+        <ReadingScreen
+          key={route.topic}
+          topic={route.topic}
+          profile={profile}
+        />
+      )
     case 'me':
       return <ProfileScreen profile={profile} />
     case 'settings':
       return <SettingsScreen profile={profile} />
     case 'room':
-      return <RoomScreen key={route.roomId} roomId={route.roomId} nickname={profile.nickname} />
+      return (
+        <RoomScreen
+          key={route.roomId}
+          roomId={route.roomId}
+          nickname={profile.nickname}
+        />
+      )
     default:
       return <RoomsScreen nickname={profile.nickname} />
   }
