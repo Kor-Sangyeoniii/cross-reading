@@ -1,0 +1,79 @@
+.card {
+  border: 1px solid #e4ded6;
+  border-radius: 22px;
+  padding: 20px;
+  background: linear-gradient(140deg, #fffdf8, #f1eee7);
+}
+.card h2 {
+  font-size: 27px;
+  margin: 4px 0;
+}
+.card p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.eyebrow {
+  font-size: 10px !important;
+  letter-spacing: 1px;
+  color: #8a6543;
+}
+.art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #102630;
+  border-radius: 18px;
+  margin: 16px 0;
+}
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 210px;
+  border-radius: 18px;
+  background: #fff9;
+  margin: 16px 0;
+  gap: 8px;
+}
+.placeholder > span {
+  font-size: 90px;
+}
+.placeholder small {
+  color: #747774;
+  font-size: 11px;
+}
+.description {
+  margin: 10px 0;
+  color: #5e615d;
+}
+.counts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  margin: 16px 0;
+}
+.counts div {
+  text-align: center;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 0;
+}
+.counts dt {
+  font-size: 11px;
+  color: #72736e;
+}
+.counts dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.card details {
+  border-top: 1px solid #e6e0d6;
+  margin-top: 14px;
+}
+.card li {
+  font-size: 12px;
+  margin: 10px 0;
+}

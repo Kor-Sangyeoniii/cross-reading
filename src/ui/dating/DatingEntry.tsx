@@ -1,9 +1,10 @@
+import { Tabs } from '../kit'
 import { ChemistryCharacter } from '../ChemistryCharacters'
 import { navigate } from '../router'
 import styles from './DatingPilot.module.css'
 export function DatingEntry() {
   return (
-    <main className={styles.pilot}>
+    <main className={`${styles.pilot} screen with-tabs`}>
       <header className={styles.header}>
         <button
           type="button"
@@ -47,22 +48,29 @@ export function DatingEntry() {
         </div>
       </section>
       <section className={styles.card}>
-        <h2>새로운 소개를 먼저 경험해 보세요</h2>
+        <h2>처음이라면, 순서대로 따라와 보세요</h2>
         <p>
-          가상 인물 4명을 바꿔가며 관심 보내기부터 결제 대기·환불·대화까지 혼자
-          확인할 수 있어요.
+          내 소개부터 대화까지, 한 사람의 입장에서 따라가요. 상대의 행동은 가상
+          예시로 이어져 계정을 바꿀 필요가 없어요.
         </p>
         <button
           type="button"
           className={styles.primary}
           onClick={() => navigate('/dating/demo')}
         >
-          가상 인물 4명으로 체험하기
+          내 소개부터 시작하기
         </button>
         <p className={styles.tiny}>
           로그인 없이 이용해요. 실제 결제·본인인증·다른 사람에게 전송은 없어요.
           새로고침하면 체험이 초기화돼요.
         </p>
+      </section>
+      <section className={styles.card}>
+        <h2>내 사주부터 소개까지 한눈에</h2>
+        <p>오늘·내 사주·소개·대화·마이. 다섯 메뉴로 새 구성을 둘러보세요.</p>
+        <button className={styles.primary} onClick={() => navigate('/try')}>
+          새 앱 먼저 둘러보기
+        </button>
       </section>
       <section className={styles.card}>
         <h2>우리의 소개 약속</h2>
@@ -96,6 +104,7 @@ export function DatingEntry() {
       >
         개인 운세·기존 친구 대화 이용하기
       </button>
+      <Tabs current="dating" />
     </main>
   )
 }

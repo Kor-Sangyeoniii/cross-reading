@@ -32,8 +32,10 @@ export function usePath(): string {
 
 export type Route =
   | { name: 'home' }
+  | { name: 'trial' }
   | { name: 'dating' }
   | { name: 'datingDemo' }
+  | { name: 'datingLab' }
   | { name: 'me' }
   | { name: 'reading'; topic: ReadingTopic }
   | { name: 'rooms' }
@@ -49,7 +51,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export function matchRoute(path: string): Route {
   const p = path.replace(/\/+$/, '') || '/'
+  if (p === '/try') return { name: 'trial' }
   if (p === '/dating') return { name: 'dating' }
+  if (p === '/dating/lab') return { name: 'datingLab' }
   if (p === '/dating/demo') return { name: 'datingDemo' }
   if (p === '/') return { name: 'home' }
   if (p === '/me') return { name: 'me' }

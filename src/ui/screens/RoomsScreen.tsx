@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getRoomMembers, listMyRooms, type MyRoom, type RoomMember } from '../../lib/rooms'
+import {
+  getRoomMembers,
+  listMyRooms,
+  type MyRoom,
+  type RoomMember,
+} from '../../lib/rooms'
 import { InviteSheet } from '../InviteSheet'
 import { ErrorNotice, Loading, Tabs, TopBar } from '../kit'
 import { messageOf } from '../messages'
@@ -24,7 +29,9 @@ export function RoomsScreen({ nickname }: { nickname: string }) {
     setError('')
     try {
       const list = await listMyRooms()
-      const withMembers = await Promise.all(list.map(async (r) => ({ ...r, members: await getRoomMembers(r.id) })))
+      const withMembers = await Promise.all(
+        list.map(async (r) => ({ ...r, members: await getRoomMembers(r.id) })),
+      )
       setRooms(withMembers)
     } catch (e) {
       setError(messageOf(e))
@@ -37,39 +44,117 @@ export function RoomsScreen({ nickname }: { nickname: string }) {
 
   return (
     <main className="screen with-tabs">
-      <TopBar title="관계" />
-      {unavailable && <div className="notice" role="status"><p>새 메시지 확인이 지연되고 있어요. 모임을 열어 확인하거나 다시 시도해 주세요.</p><button className="btn small secondary" type="button" onClick={refresh}>다시 확인</button></div>}
+      <TopBar title="대화" />
+      <section className="card" style={{ marginBottom: 16 }}>
+        <h2>소개로 연결된 대화</h2>
+        <p className="muted small">
+          실제 소개 대화는 준비 중이에요. 아래 친구 모임은 기존처럼 이용할 수
+          있어요.
+        </p>
+        <button
+          className="btn small secondary"
+          onClick={() => navigate('/dating')}
+        >
+          소개 이용 방법 보기
+        </button>
+      </section>
+      <h2 className="small" style={{ marginBottom: 12 }}>
+        친구 모임 · 궁합과 대화
+      </h2>
+      {unavailable && (
+        <div className="notice" role="status">
+          <p>
+            새 메시지 확인이 지연되고 있어요. 모임을 열어 확인하거나 다시 시도해
+            주세요.
+          </p>
+          <button
+            className="btn small secondary"
+            type="button"
+            onClick={refresh}
+          >
+            다시 확인
+          </button>
+        </div>
+      )}
       {error && <ErrorNotice message={error} onRetry={load} />}
       {!error && rooms === null && <Loading text="모임을 불러오고 있어요." />}
       {rooms && rooms.length === 0 && (
         <div className={styles.empty}>
-          <div className={styles.duo}><ChemistryDuo kinds={['flame', 'cloud']} /></div>
-          <h2>친구 한 명이면,<br />우리 조합이 보여요.</h2>
-          <p>닮은 점과 다른 박자를 캐릭터 한 장에.<br />친구를 초대하고 함께 확인해 보세요.</p>
-          <div className="stack"><button className="btn" type="button" onClick={() => setInviting(true)}>친구 초대하기</button><button className="btn secondary" type="button" onClick={() => navigate('/me')}>내 캐릭터 먼저 보기</button></div>
+          <div className={styles.duo}>
+            <ChemistryDuo kinds={['flame', 'cloud']} />
+          </div>
+          <h2>
+            친구 한 명이면,
+            <br />
+            우리 조합이 보여요.
+          </h2>
+          <p>
+            닮은 점과 다른 박자를 캐릭터 한 장에.
+            <br />
+            친구를 초대하고 함께 확인해 보세요.
+          </p>
+          <div className="stack">
+            <button
+              className="btn"
+              type="button"
+              onClick={() => setInviting(true)}
+            >
+              친구 초대하기
+            </button>
+            <button
+              className="btn secondary"
+              type="button"
+              onClick={() => navigate('/me')}
+            >
+              내 캐릭터 먼저 보기
+            </button>
+          </div>
         </div>
       )}
       {rooms && rooms.length > 0 && (
         <div className="stack">
           {rooms.map((r) => {
-            const others = r.members.filter((m) => m.userId !== me).map((m) => m.nickname)
+            const others = r.members
+              .filter((m) => m.userId !== me)
+              .map((m) => m.nickname)
             const waiting = r.memberCount < 2
             return (
               <button
                 key={r.id}
                 type="button"
                 className="card"
-                style={{ textAlign: 'left', border: 0, cursor: 'pointer', width: '100%' }}
+                style={{
+                  textAlign: 'left',
+                  border: 0,
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
                 onClick={() => navigate(`/rooms/${r.id}`)}
               >
-                <p style={{ fontWeight: 700 }}>{unreadRooms.includes(r.id) && <span className="badge">새 메시지</span>} {others.length > 0 ? `${others.join(', ')}님과 나` : '친구를 기다리는 모임'}</p>
+                <p style={{ fontWeight: 700 }}>
+                  {unreadRooms.includes(r.id) && (
+                    <span className="badge">새 메시지</span>
+                  )}{' '}
+                  {others.length > 0
+                    ? `${others.join(', ')}님과 나`
+                    : '친구를 기다리는 모임'}
+                </p>
                 <p className="muted small">
-                  {r.memberCount}/4명 · {waiting ? '친구의 수락을 기다리고 있어요' : '궁합 보기 · 대화하기'}
+                  {r.memberCount}/4명 ·{' '}
+                  {waiting
+                    ? '친구의 수락을 기다리고 있어요'
+                    : '궁합 보기 · 대화하기'}
                 </p>
               </button>
             )
           })}
-          <button className="btn secondary" type="button" onClick={() => setInviting(true)}>새 모임 만들기</button>
+          <button
+            className="btn secondary"
+            type="button"
+            onClick={() => setInviting(true)}
+          >
+            새 모임 만들기
+          </button>
         </div>
       )}
       {inviting && (

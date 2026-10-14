@@ -12,11 +12,9 @@ const nav=async name=>page.getByRole('navigation',{name:'소개팅 메뉴'}).get
 const open=async name=>page.getByRole('button',{name:new RegExp(name+'.*소개 자세히 보기')}).click();
 const pay=async()=>{await page.getByRole('checkbox').check();await page.getByRole('button',{name:'가상 3,000원 결제하기',exact:true}).click();};
 try {
- await page.goto(base+'/dating');
- await page.getByRole('heading',{name:'가깝게 살고, 시간이 맞고, 서로 궁금하다면.'}).waitFor();
- await page.getByRole('button',{name:'가상 인물 4명으로 체험하기'}).click();
+ await page.goto(base+'/dating/lab');
  await page.getByRole('heading',{name:'오늘, 알아가 볼 사람'}).waitFor();
- assert.equal(new URL(page.url()).pathname,new URL(base+'/dating/demo').pathname);
+ assert.equal(new URL(page.url()).pathname,new URL(base+'/dating/lab').pathname);
  for(const width of [360,390,430]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  passed.push('public entry, four fictional personas, 360/390/430px without overflow');
  await open('타오');await page.getByRole('button',{name:'관심 보내기',exact:true}).click();

@@ -113,7 +113,7 @@ details summary { min-height: 44px; display: flex; align-items: center; cursor: 
 /* 아래 탭 */
 .tabs {
   position: fixed; left: 50%; bottom: 0; z-index: 10; transform: translateX(-50%);
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: 480px;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; max-width: 480px;
   min-height: var(--tab-h); padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface); border-top: 1px solid var(--line);
 }

@@ -34,7 +34,7 @@ export function StartScreen({ invited }: { invited?: boolean }) {
   return (
     <main className="screen">
       <BrandCharacters invited={invited} />
-      <section className="card" style={{ marginBottom: 24 }}><span className="badge">새로운 소개 · 가상 체험</span><h2 style={{ marginTop: 10 }}>가깝게 살고, 시간이 맞는 사람</h2><p className="muted">서로 선택하고 비용은 절반씩. 가상 인물 4명으로 관심·환불·대화까지 혼자 경험해 보세요.</p><button type="button" className="btn secondary" style={{ marginTop: 12 }} onClick={() => navigate('/dating')}>새로운 소개 체험하기</button></section>
+      <section className="card" style={{ marginBottom: 24 }}><span className="badge">새로운 소개 · 가상 체험</span><h2 style={{ marginTop: 10 }}>가깝게 살고, 시간이 맞는 사람</h2><p className="muted">서로 선택하고 비용은 절반씩. 내 소개부터 관심·연결·대화까지 순서대로 따라가 보세요.</p><button type="button" className="btn secondary" style={{ marginTop: 12 }} onClick={() => navigate('/try')}>새 앱 먼저 둘러보기</button></section>
 
       <section className="stack" aria-labelledby="auth-title">
         <h2 id="auth-title">{mode === 'login' ? '로그인' : '회원가입'}</h2>

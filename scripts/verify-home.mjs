@@ -28,14 +28,14 @@ try {
   await page.getByRole('heading', { name: 'Cross Reading', exact: true }).waitFor();
   assert.equal(new URL(page.url()).pathname, '/');
   assert.equal(await page.getByRole('region', { name: '나의 개인 사주 풀이' }).count(), 0);
-  assert.equal(await page.getByRole('navigation', { name: '주요 메뉴' }).getByRole('button').count(), 3);
+  assert.equal(await page.getByRole('navigation', { name: '주요 메뉴' }).getByRole('button').count(), 5);
   const daily = page.getByRole('button', { name: /오늘 풀이 열기/ });
   assert.ok((await daily.boundingBox()).y < 350);
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   }
-  passed.push('signed-in home with visible choices and three navigation items');
+  passed.push('signed-in home with visible choices and five navigation items');
   await daily.focus(); await page.keyboard.press('Enter');
   await page.getByRole('heading', { name: '오늘의 운세', level: 1 }).waitFor();
   const answer = page.getByRole('region', { name: '일운', exact: true });
@@ -70,16 +70,16 @@ try {
   await page.getByRole('button', { name: /내 기질/ }).click();
   await page.getByRole('heading', { name: '나의 특징', exact: false }).waitFor();
   assert.equal(await page.getByRole('region', { name: '나의 개인 사주 풀이' }).count(), 0);
-  await page.locator('summary').first().click();
+  await page.getByText('해석 근거와 일상 예시 보기 ＋', {exact:true}).first().click();
   await page.getByText('해석 근거', { exact: true }).first().waitFor();
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   }
   passed.push('temperament has own explanation and optional evidence without all other readings');
-  await page.getByRole('button', { name: '홈', exact: true }).click();
+  await page.getByRole('button', { name: '오늘', exact: true }).click();
   await page.getByRole('button', { name: /우리 궁합은 어떨까/ }).click();
-  await page.getByRole('heading', { name: '관계', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '대화', exact: true }).waitFor();
   await page.getByRole('button', { name: /가상 친구님과 나/ }).click();
   await page.getByRole('region', { name: '한눈에 보는 우리 궁합' }).waitFor();
   passed.push('compatibility card leads to existing real room selector and result');
@@ -88,7 +88,7 @@ try {
   await profile.page.getByRole('region', { name: '내 사주 캐릭터' }).waitFor();
   assert.equal(await profile.page.getByRole('region', { name: '나의 개인 사주 풀이' }).count(), 0);
   await profile.page.getByRole('button', { name: '내 정보·알림 설정', exact: true }).click();
-  await profile.page.getByRole('heading', { name: '설정', exact: true }).waitFor();
+  await profile.page.getByRole('heading', { name: '마이', exact: true }).waitFor();
   await profile.context.close();
   passed.push('compact profile retains character, topic links and settings');
   const loggedOut = await open('/readings/month', authMock);
