@@ -10,7 +10,6 @@ import { ZodiacCard } from '../ZodiacCard'
 import { PersonalReading } from '../PersonalReading'
 import { ReadingDetails } from '../ReadingDetails'
 import { ElementFlow } from '../ElementFlow'
-import { SajuChart } from '../SajuChart'
 import styles from '../ReadingHome.module.css'
 
 export function ReadingScreen({
@@ -128,9 +127,6 @@ export function ReadingScreen({
                 birth={profile.birth}
                 mode={topic}
               />
-            )}
-            {topic === 'natal' && (
-              <SajuChart chart={result.chart} nickname={profile.nickname} />
             )}
             {result.summary.notes.length > 0 && (
               <div className="notice">

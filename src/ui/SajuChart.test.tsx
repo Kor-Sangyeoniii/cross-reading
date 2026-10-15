@@ -23,11 +23,14 @@ describe('SajuChart', () => {
     }
   })
 
-  it('omits the hour pillar for unknown time and explains the six-character basis', () => {
+  it('keeps an empty hour slot without invented characters and explains the six-character basis', () => {
     const html = render(unknown)
-    expect(html.match(/role="group"/g)).toHaveLength(3)
+    expect(html.match(/role="group"/g)).toHaveLength(4)
     expect(html.match(/role="img"/g)).toHaveLength(6)
-    expect(html).not.toContain('시주')
+    expect(html).toContain('시주 미상')
+    expect(html).toContain('시간 미상')
+    expect(html).not.toContain('aria-label="시주 천간')
+    expect(html).not.toContain('aria-label="시주 지지')
     expect(html).toContain('출생시간 없이 봤어요')
     expect(html).toContain('총 6글자 기준')
   })
