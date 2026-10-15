@@ -1,0 +1,115 @@
+.root {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.intro {
+  padding: 18px;
+  border-radius: 18px;
+  background: #eeeafa;
+  color: #3c3055;
+}
+.intro p {
+  font-size: 14px;
+  margin: 8px 0 0;
+  line-height: 1.7;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.chip {
+  min-height: 38px;
+  padding: 7px 5px;
+  max-width: 100%;
+  border: 1px solid #cec4e4;
+  border-radius: 10px;
+  background: #fff;
+  color: #4b386c;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.chip[aria-pressed='true'] {
+  background: #4e3974;
+  color: #fff;
+  border-color: #4e3974;
+}
+.chip:focus-visible,
+.detail:focus-visible {
+  outline: 3px solid #7357aa;
+  outline-offset: 3px;
+}
+.transit {
+  border: 2px solid #9570b4;
+  border-radius: 18px;
+  padding: 18px;
+  background: #faf5ff;
+}
+.transit > span,
+.eyebrow {
+  color: #62477d;
+  font-size: 13px;
+  font-weight: 700;
+}
+.transit .chips {
+  justify-content: flex-start;
+}
+.transit .chip {
+  font-size: 13px;
+  padding: 9px 12px;
+}
+.detail,
+.section {
+  padding: 18px;
+  border: 1px solid #ded9e7;
+  border-radius: 18px;
+  background: #fff;
+  min-width: 0;
+}
+.detail {
+  scroll-margin: 80px;
+}
+.root h3 {
+  font-size: 17px;
+  margin: 8px 0 12px;
+}
+.root h4 {
+  margin: 16px 0 6px;
+  font-size: 14px;
+}
+.root p {
+  line-height: 1.75;
+}
+.example {
+  padding: 14px;
+  background: #f6f3ed;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.reading {
+  border-top: 1px solid #e8e3ed;
+  padding: 12px 0;
+}
+.reading summary,
+.settings summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.7;
+  padding: 6px 0;
+}
+.settings {
+  border-radius: 16px;
+  background: #f3f1f6;
+  padding: 16px;
+  font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail {
+    scroll-behavior: auto;
+  }
+}
