@@ -51,6 +51,9 @@ try {
   await page
     .getByRole('button', { name: '오늘 풀이 열기', exact: true })
     .click()
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+    .click()
   const answer = page.getByRole('region', { name: '일운', exact: true })
   await answer.waitFor()
   await page.locator('input[type=date]').fill('2026-10-10')
@@ -85,6 +88,10 @@ try {
       .getByRole('button', { name: new RegExp(label) })
       .click()
     await page.getByRole('heading', { name: label, level: 1 }).waitFor()
+    if (label !== '나의 오행')
+      await page
+        .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+        .click()
     if (label === '나의 대운') {
       await page
         .getByRole('combobox', { name: '대운 순·역행 계산 기준' })

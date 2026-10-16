@@ -1,3 +1,4 @@
+import { ReadingExperience } from '../ReadingExperience'
 import { useEffect, useMemo, useRef } from 'react'
 import { computeSaju } from '../../core/saju'
 import { summarizeProfile } from '../../core/profileSummary'
@@ -8,6 +9,8 @@ import { READING_MENU } from '../readingCatalog'
 import { ChemistryCharacter } from '../ChemistryCharacters'
 import { ZodiacCard } from '../ZodiacCard'
 import { PersonalReading } from '../PersonalReading'
+import { DetailedReading } from '../DetailedReading'
+import { natalNarrative } from '../../core/readingNarrative'
 import { ReadingDetails } from '../ReadingDetails'
 import { ElementFlow } from '../ElementFlow'
 import styles from '../ReadingHome.module.css'
@@ -58,7 +61,11 @@ export function ReadingScreen({
         ) : (
           <>
             {topic === 'temperament' && (
-              <>
+              <ReadingExperience
+                chart={result.chart}
+                context={{ mode: 'natal' }}
+              >
+                <DetailedReading report={natalNarrative(result.chart)} />
                 <ZodiacCard chart={result.chart} />
                 <section className="card">
                   <h2>{result.summary.headline}</h2>
@@ -112,7 +119,7 @@ export function ReadingScreen({
                   </p>
                 </section>
                 <p className="muted small">{result.summary.disclaimer}</p>
-              </>
+              </ReadingExperience>
             )}
             {topic === 'elements' && (
               <ElementFlow

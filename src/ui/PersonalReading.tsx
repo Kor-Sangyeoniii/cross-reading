@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Gender, TenGod } from 'manseryeok'
 import {
-  natalReadings,
   personalLuck,
   personalPeriods,
   PERSONAL_LIMIT,
@@ -10,9 +9,31 @@ import {
 import { seoulToday, type BirthInput, type SajuChart } from '../core/saju'
 import styles from './ReadingHome.module.css'
 import { ShinsalReading } from './ShinsalReading'
+import { ReadingExperience } from './ReadingExperience'
+import { DetailedReading, ReadingChapters } from './DetailedReading'
+import {
+  natalNarrative,
+  natalGodSources,
+  periodNarrative,
+  tenGodChapters,
+  type PeriodKind,
+} from '../core/readingNarrative'
+import type { PillarKey } from '../core/saju'
 
 type ReadingMode = 'natal' | 'luck' | 'day' | 'month' | 'year'
-function GodDetail({ god, basis }: { god: TenGod; basis: string }) {
+function GodDetail({
+  god,
+  basis,
+  chart,
+  source,
+  position,
+}: {
+  god: TenGod
+  basis: string
+  chart: SajuChart
+  source: string
+  position?: PillarKey
+}) {
   const reading = TEN_GOD_READING[god]
   return (
     <details className="card">
@@ -24,7 +45,9 @@ function GodDetail({ god, basis }: { god: TenGod; basis: string }) {
       <div className="stack">
         <p>{reading.meaning}</p>
         <p>생활 예시 · {reading.example}</p>
-        <p className="muted small">근거 · {basis}</p>
+        <ReadingChapters
+          chapters={tenGodChapters(chart, god, source, basis, position)}
+        />
       </div>
     </details>
   )
@@ -33,7 +56,13 @@ function PillarReading({
   title,
   reading,
   chart,
+  kind,
+  contextLabel,
+  uncertain = false,
 }: {
+  kind: PeriodKind
+  contextLabel: string
+  uncertain?: boolean
   title: string
   reading: ReturnType<typeof personalPeriods>['day']
   chart: SajuChart
@@ -62,7 +91,13 @@ function PillarReading({
           않아요.
         </p>
       </details>
+      <DetailedReading
+        key={`${kind}-${contextLabel}-${reading.label}`}
+        report={periodNarrative(chart, reading, kind, contextLabel, uncertain)}
+      />
       <GodDetail
+        chart={chart}
+        source={`${title} 지지 ${reading.label[1]}`}
         god={reading.branchGod}
         basis={`${reading.label[1]} 지지의 대표 지장간(정기)을 내 일간과 비교했어요. 지장간 전체를 종합한 풀이는 아니에요.`}
       />
@@ -195,77 +230,123 @@ export function PersonalReading({
           )}
         </div>
       )}
-      <ShinsalReading
+      <ReadingExperience
         chart={chart}
-        transit={
-          period
-            ? {
-                label: period.label,
-                title: periodTitle,
-                uncertain:
-                  mode === 'year'
-                    ? periods?.yearBoundary
-                    : mode === 'month'
-                      ? periods?.monthBoundary
-                      : false,
-              }
-            : chosen
-              ? { label: chosen.label, title: '선택한 대운' }
-              : undefined
-        }
-      />
-      {chosen && (
-        <PillarReading title="선택한 대운" reading={chosen} chart={chart} />
-      )}
-      {mode === 'natal' && (
-        <section className="stack" aria-label="원국 십성 풀이">
-          <p>
-            비견·겁재 같은 십신은 나와 다른 글자 사이의 관계를 부르는
-            이름이에요. 아래에서 궁금한 항목을 눌러 뜻과 생활 예시를 읽어보세요.
-          </p>
-          <p className="muted small">
-            반복 횟수가 성격의 강도나 좋고 나쁨을 뜻하지 않아요.
-          </p>
-          {natalReadings(chart).map(({ source, god }) => (
-            <div key={source}>
-              <h3>{source}</h3>
-              <GodDetail
-                god={god}
-                basis={`${source}를 내 일간에 대조한 결과예요. 지지는 대표 지장간만 사용해요.`}
-              />
-            </div>
-          ))}
-          {!chart.hourKnown && (
-            <p className="notice">출생시간을 몰라 시주는 제외했어요.</p>
-          )}
-        </section>
-      )}
-      {period && periods && (
-        <div className="stack" aria-live="polite">
-          <PillarReading title={periodTitle} reading={period} chart={chart} />
-          <p className="muted small">
-            {date}의 한국 시간 정오 기준이에요.{' '}
-            {mode === 'year'
-              ? '연운은 1월 1일이 아닌 입춘에서 바뀌어요.'
+        context={{
+          mode,
+          reading: period ?? chosen,
+          label:
+            mode === 'natal'
+              ? undefined
+              : mode === 'luck'
+                ? chosen
+                  ? `약 ${chosen.age}~${chosen.endAge}세 구간`
+                  : undefined
+                : date,
+          uncertain:
+            mode === 'year'
+              ? periods?.yearBoundary
               : mode === 'month'
-                ? '월운은 달력의 1일이 아닌 절기에서 바뀌어요. 같은 달에도 선택한 날짜에 따라 다를 수 있어요.'
-                : '일운은 자정에서 바뀌어요.'}
-          </p>
-          {((mode === 'year' && periods.yearBoundary) ||
-            (mode === 'month' && periods.monthBoundary)) && (
-            <p className="notice">
-              선택한 날 안에 절기가 바뀌어요. 정오의 간지이므로 절입 전후의
-              풀이가 다를 수 있어요.
+                ? periods?.monthBoundary
+                : false,
+        }}
+      >
+        {mode === 'natal' && <DetailedReading report={natalNarrative(chart)} />}
+        {chosen && (
+          <PillarReading
+            title="선택한 대운"
+            reading={chosen}
+            chart={chart}
+            kind="luck"
+            contextLabel={`약 ${chosen.age}~${chosen.endAge}세 구간`}
+          />
+        )}
+        {period && periods && (
+          <div className="stack" aria-live="polite">
+            <PillarReading
+              title={periodTitle}
+              reading={period}
+              chart={chart}
+              kind={mode as PeriodKind}
+              contextLabel={date}
+              uncertain={
+                mode === 'year'
+                  ? periods.yearBoundary
+                  : mode === 'month'
+                    ? periods.monthBoundary
+                    : false
+              }
+            />
+            <p className="muted small">
+              {date}의 한국 시간 정오 기준이에요.{' '}
+              {mode === 'year'
+                ? '연운은 1월 1일이 아닌 입춘에서 바뀌어요.'
+                : mode === 'month'
+                  ? '월운은 달력의 1일이 아닌 절기에서 바뀌어요. 같은 달에도 선택한 날짜에 따라 다를 수 있어요.'
+                  : '일운은 자정에서 바뀌어요.'}
             </p>
-          )}
-        </div>
-      )}
-      {chart.yearMonthUncertain && (
-        <p className="notice">
-          출생일이 절기 경계일이라 내 원국의 연주·월주는 확인이 필요해요.
-        </p>
-      )}
-      <p className="muted small">{PERSONAL_LIMIT}</p>
+            {((mode === 'year' && periods.yearBoundary) ||
+              (mode === 'month' && periods.monthBoundary)) && (
+              <p className="notice">
+                선택한 날 안에 절기가 바뀌어요. 정오의 간지이므로 절입 전후의
+                풀이가 다를 수 있어요.
+              </p>
+            )}
+          </div>
+        )}
+        <ShinsalReading
+          chart={chart}
+          transit={
+            period
+              ? {
+                  label: period.label,
+                  title: periodTitle,
+                  uncertain:
+                    mode === 'year'
+                      ? periods?.yearBoundary
+                      : mode === 'month'
+                        ? periods?.monthBoundary
+                        : false,
+                }
+              : chosen
+                ? { label: chosen.label, title: '선택한 대운' }
+                : undefined
+          }
+        />
+        {mode === 'natal' && (
+          <section className="stack" aria-label="원국 십성 풀이">
+            <p>
+              비견·겁재 같은 십신은 나와 다른 글자 사이의 관계를 부르는
+              이름이에요. 아래에서 궁금한 항목을 눌러 뜻과 생활 예시를
+              읽어보세요.
+            </p>
+            <p className="muted small">
+              반복 횟수가 성격의 강도나 좋고 나쁨을 뜻하지 않아요.
+            </p>
+            {natalGodSources(chart).map(({ source, god, basis, position }) => (
+              <div key={source}>
+                <h3>{source}</h3>
+                <GodDetail
+                  god={god}
+                  basis={basis}
+                  chart={chart}
+                  source={source}
+                  position={position}
+                />
+              </div>
+            ))}
+            {!chart.hourKnown && (
+              <p className="notice">출생시간을 몰라 시주는 제외했어요.</p>
+            )}
+          </section>
+        )}
+        {chart.yearMonthUncertain && (
+          <p className="notice">
+            출생일이 절기 경계일이라 내 원국의 연주·월주는 확인이 필요해요.
+          </p>
+        )}
+        <p className="muted small">{PERSONAL_LIMIT}</p>
+      </ReadingExperience>
     </section>
   )
 }

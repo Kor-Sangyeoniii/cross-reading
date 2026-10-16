@@ -1,0 +1,100 @@
+.report {
+  border: 1px solid #ded5e8;
+  border-radius: 20px;
+  overflow: hidden;
+  min-width: 0;
+  background: #fff;
+  color: #302c39;
+}
+.report header {
+  padding: 24px 20px 16px;
+  background: #f6f1fb;
+}
+.label {
+  color: #684981;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.report h2 {
+  font-size: 21px;
+  line-height: 1.5;
+  margin: 8px 0 16px;
+}
+.report p,
+.chapters p {
+  font-size: 15px;
+  line-height: 1.95;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  margin: 0 0 16px;
+}
+.report p:last-child,
+.chapters p:last-child {
+  margin-bottom: 0;
+}
+.toolbar {
+  padding: 16px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e7e0ec;
+}
+.toolbar p {
+  flex: 1 1 160px;
+  font-size: 12px;
+  color: #615b6a;
+  margin: 0;
+}
+.toolbar button {
+  min-height: 44px;
+}
+.sections details {
+  padding: 0 20px;
+  border-bottom: 1px solid #e7e0ec;
+}
+.sections details:last-child {
+  border: 0;
+}
+.sections summary {
+  padding: 18px 0;
+  min-height: 52px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.7;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.sections details > div {
+  padding: 0 0 22px;
+}
+.sections summary:focus-visible {
+  outline: 3px solid #7957a1;
+  outline-offset: 2px;
+}
+.chapters {
+  display: grid;
+  gap: 22px;
+  margin: 20px 0;
+}
+.chapters section {
+  border-top: 1px solid #e6dfeb;
+  padding-top: 18px;
+}
+.chapters h4 {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0 0 10px;
+  color: #4c365f;
+}
+@media (max-width: 380px) {
+  .report header,
+  .toolbar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .sections details {
+    padding: 0 16px;
+  }
+}

@@ -1,3 +1,4 @@
+import { ReadingExperience } from './ReadingExperience'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { computeSaju, seoulToday } from '../core/saju'
 import { summarizeProfile } from '../core/profileSummary'
@@ -10,6 +11,8 @@ import { ZodiacCard } from './ZodiacCard'
 import { zodiacPersona } from '../core/zodiac'
 import { TrialProfileEditor } from './TrialProfileEditor'
 import { PersonalReading } from './PersonalReading'
+import { DetailedReading } from './DetailedReading'
+import { natalNarrative } from '../core/readingNarrative'
 import { ElementFlow } from './ElementFlow'
 import { ReadingDetails } from './ReadingDetails'
 import { DatingGuide, type GuideProgress } from './dating/DatingGuide'
@@ -233,7 +236,8 @@ export function TrialApp() {
                   : '가상 출생정보로 계산한 참고용 풀이예요. 실제 내 결과가 아니에요.'}
               </p>
               {topic === 'temperament' ? (
-                <>
+                <ReadingExperience chart={chart} context={{ mode: 'natal' }}>
+                  <DetailedReading report={natalNarrative(chart)} />
                   <section className="card" aria-label="선택한 MBTI">
                     <h2>내가 고른 MBTI</h2>
                     <p>{profile.mbti ?? '아직 선택하지 않았어요.'}</p>
@@ -266,7 +270,7 @@ export function TrialApp() {
                       <ReadingDetails {...summary.details.conversationTips} />
                     </details>
                   </section>
-                </>
+                </ReadingExperience>
               ) : topic === 'elements' ? (
                 <ElementFlow
                   elements={chart.elements}
