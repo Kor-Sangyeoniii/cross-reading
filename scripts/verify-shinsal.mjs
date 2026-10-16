@@ -37,6 +37,9 @@ const topic = async (name) => {
     .getByRole('region', { name: '풀이 주제' })
     .getByRole('button', { name: new RegExp(name) })
     .click()
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+    .click()
 }
 const chart = page.getByRole('region', {
   name: '내 원국 · 시주·일주·월주·연주',

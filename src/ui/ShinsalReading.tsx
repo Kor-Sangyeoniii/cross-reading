@@ -10,6 +10,9 @@ import {
   type TransitPillar,
 } from '../core/shinsal'
 import { SajuChart } from './SajuChart'
+import { ReadingChapters } from './DetailedReading'
+import { shinsalChapters, togetherChapters } from '../core/shinsalNarrative'
+import { connectionChapters } from '../core/readingNarrative'
 import styles from './ShinsalReading.module.css'
 
 export function ShinsalReading({
@@ -116,6 +119,7 @@ export function ShinsalReading({
             </p>
             <h4>왜 여기에 표시됐나요?</h4>
             <p>{active.basis}</p>
+            <ReadingChapters chapters={shinsalChapters(chart, active, all)} />
             <p className="muted small">
               {active.position === 'transit'
                 ? '선택한 운의 표시예요. 태어난 원국에 새 신살이 생겼다는 뜻은 아니에요.'
@@ -150,6 +154,7 @@ export function ShinsalReading({
               </summary>
               <p>{pair.meaning}</p>
               <p className={styles.example}>{pair.example}</p>
+              <ReadingChapters chapters={togetherChapters(pair)} />
               <p className="muted small">근거 1 · {pair.left.basis}</p>
               <p className="muted small">근거 2 · {pair.right.basis}</p>
               {pair.uncertain && (
@@ -180,7 +185,7 @@ export function ShinsalReading({
               </summary>
               <p>{c.basis}</p>
               <p>{c.meaning}</p>
-              <p className={styles.example}>{c.example}</p>
+              <ReadingChapters chapters={connectionChapters(c, chart)} />
             </details>
           ))
         ) : (

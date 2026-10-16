@@ -91,6 +91,9 @@ try {
   await page
     .getByRole('button', { name: '오늘 풀이 열기', exact: true })
     .click()
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+    .click()
   const daily = page.getByRole('region', { name: '일운', exact: true })
   await daily.waitFor()
   await daily.locator('summary').first().click()
@@ -103,6 +106,9 @@ try {
   await tab('오늘')
   await page
     .getByRole('button', { name: '오늘 풀이 열기', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
     .click()
   await daily.waitFor()
   await daily.locator('summary').first().click()
@@ -154,6 +160,9 @@ try {
   await page
     .getByRole('combobox', { name: '대운 순·역행 계산 기준' })
     .selectOption('male')
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+    .click()
   assert.equal(
     await page
       .getByRole('region', { name: '선택한 대운', exact: true })
@@ -172,6 +181,9 @@ try {
   await page
     .getByRole('combobox', { name: '대운 순·역행 계산 기준' })
     .selectOption('male')
+  await page
+    .getByRole('button', { name: '자세한 풀이·만세력', exact: true })
+    .click()
   await page.getByRole('region', { name: '선택한 대운', exact: true }).waitFor()
   const stored = await page.evaluate(() => ({
     local: { ...localStorage },
