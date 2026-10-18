@@ -1,3 +1,4 @@
+import { LifeOverview } from './LifeOverview'
 import { useState } from 'react'
 import type { Gender, TenGod } from 'manseryeok'
 import {
@@ -229,6 +230,26 @@ export function PersonalReading({
             </>
           )}
         </div>
+      )}
+      {(mode === 'natal' || period || chosen) && (
+        <LifeOverview
+          chart={chart}
+          period={period ?? chosen}
+          label={
+            mode === 'natal'
+              ? '타고난 기질'
+              : mode === 'luck'
+                ? `대운 · 약 ${chosen?.age}~${chosen?.endAge}세`
+                : `${date} · ${periodTitle}`
+          }
+          uncertain={
+            mode === 'month'
+              ? periods?.monthBoundary
+              : mode === 'year'
+                ? periods?.yearBoundary
+                : false
+          }
+        />
       )}
       <ReadingExperience
         chart={chart}

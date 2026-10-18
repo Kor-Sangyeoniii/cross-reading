@@ -1,3 +1,6 @@
+import { LifeOverview } from './LifeOverview'
+import { FriendExplorer } from './FriendExplorer'
+import { ConversationLab } from './ConversationLab'
 import { ReadingExperience } from './ReadingExperience'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { computeSaju, seoulToday } from '../core/saju'
@@ -212,6 +215,8 @@ export function TrialApp() {
                   직접 선택한 유형이에요. 사주와 별도로 참고해요.
                 </p>
               </section>
+              <LifeOverview chart={chart} />
+              <FriendExplorer chart={chart} mbti={profile.mbti} />
               <ZodiacCard chart={chart} example={!custom} />
               <section aria-label="풀이 주제">
                 <h2>어떤 이야기가 궁금하세요?</h2>
@@ -235,6 +240,7 @@ export function TrialApp() {
                   ? '선택한 출생정보로 계산한 참고용 풀이예요.'
                   : '가상 출생정보로 계산한 참고용 풀이예요. 실제 내 결과가 아니에요.'}
               </p>
+              {topic === 'temperament' && <LifeOverview chart={chart} />}
               {topic === 'temperament' ? (
                 <ReadingExperience chart={chart} context={{ mode: 'natal' }}>
                   <DetailedReading report={natalNarrative(chart)} />
@@ -296,6 +302,7 @@ export function TrialApp() {
           onProgress={updateProgress}
         />
       </div>
+      {tab === 'rooms' && <ConversationLab />}
       {tab === 'rooms' && !progress.hasConnection && (
         <section className="card stack">
           <h2>아직 연결된 소개가 없어요</h2>

@@ -1,3 +1,5 @@
+import { ConversationLab } from '../ConversationLab'
+import { ReplySuggestions } from '../ReplySuggestions'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GroupCompat } from '../../core/compat'
 import { blockUser, listMessages, MAX_MESSAGE_LENGTH, removeMessage, reportUser, sendMessage, subscribeMessages, type ChatMessage } from '../../lib/chat'
@@ -346,6 +348,7 @@ function ChatTab({ roomId, me, members, draft, setDraft, hiddenSenders, onReport
             <div key={m.id} className={`msg${mine ? ' mine' : ''}`}>
               {!mine && <p className="who">{nameOf(m.senderId)}</p>}
               <p className="bubble">{m.body}</p>
+              {!mine && <ReplySuggestions key={m.body} body={m.body} onChoose={setDraft} />}
               <p className="meta">
                 {new Date(m.createdAt).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}
                 {!mine && sender && (
@@ -375,6 +378,7 @@ function ChatTab({ roomId, me, members, draft, setDraft, hiddenSenders, onReport
         ))}
         <div ref={bottom} />
       </div>
+      <details className="card"><summary>이 방 대화 분석하기</summary><ConversationLab names={Object.fromEntries(members.map((m) => [m.userId, nameOf(m.userId)]))} messages={visible.map((m) => ({ id: String(m.id), sender: m.senderId, body: m.body }))} me={me} onDraft={setDraft} /></details>
       {sendError && <ErrorNotice message={sendError} />}
       {pushWarning && <p className="notice" role="status">메시지는 보냈지만 웹 푸시 요청을 확인하지 못했어요. 상대방은 앱을 열어 새 메시지를 확인할 수 있어요.</p>}
       <form

@@ -1,3 +1,4 @@
+import { LifeOverview } from '../LifeOverview'
 import { ReadingExperience } from '../ReadingExperience'
 import { useEffect, useMemo, useRef } from 'react'
 import { computeSaju } from '../../core/saju'
@@ -60,6 +61,7 @@ export function ReadingScreen({
           </div>
         ) : (
           <>
+            {topic === 'temperament' && <LifeOverview chart={result.chart} />}
             {topic === 'temperament' && (
               <ReadingExperience
                 chart={result.chart}
