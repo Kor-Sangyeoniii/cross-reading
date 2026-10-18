@@ -1,3 +1,4 @@
+import { ReplySuggestions } from '../ReplySuggestions'
 import { useEffect, useRef, useState } from 'react'
 import {
   CONNECTION_PRICE,
@@ -573,6 +574,9 @@ export function DatingGuide({
                           : `${target.name} · 예시 메시지`}
                       </small>
                       <p>{m.body}</p>
+                      {m.sender !== actor && (
+                        <ReplySuggestions body={m.body} onChoose={setDraft} />
+                      )}
                       {messageWarnings(m.body).map((w) => (
                         <aside key={w}>{w}</aside>
                       ))}

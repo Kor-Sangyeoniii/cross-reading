@@ -1,3 +1,6 @@
+import { LifeOverview } from '../LifeOverview'
+import { FriendExplorer } from '../FriendExplorer'
+import { ConversationLab } from '../ConversationLab'
 import { useMemo } from 'react'
 import { computeSaju } from '../../core/saju'
 import type { MyProfile } from '../../lib/profile'
@@ -35,7 +38,15 @@ export function ProfileScreen({ profile }: { profile: MyProfile }) {
           <p className="muted">나를 알아가는 이야기, 궁금한 만큼 열어보세요.</p>
         </header>
         {chart ? (
-          <ZodiacCard chart={chart} />
+          <>
+            <LifeOverview chart={chart} />
+            <FriendExplorer chart={chart} mbti={profile.mbti} />
+            <details className="card">
+              <summary>카카오톡 대화 불러오기·분석</summary>
+              <ConversationLab />
+            </details>
+            <ZodiacCard chart={chart} />
+          </>
         ) : (
           <ErrorNotice message="저장된 출생정보를 설정에서 확인해 주세요." />
         )}
