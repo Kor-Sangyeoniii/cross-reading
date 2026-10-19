@@ -1,3 +1,4 @@
+import { PracticalCompat } from './PracticalCompat'
 import { useEffect, useState, type CSSProperties } from 'react'
 import type { PairCompat } from '../core/compat'
 import { chemistryStory, CHARACTER_PROFILES } from '../core/chemistry'
@@ -17,14 +18,10 @@ function ResultArt({ pair, names }: { pair: PairCompat; names?: [string, string]
   </div>
 }
 export function ChemistryCard({ pair, names }: { pair: PairCompat; names: [string, string] }) {
-  const story = chemistryStory(pair)
   const [sharing, setSharing] = useState(false)
   return <section aria-label="한눈에 보는 우리 궁합">
     <ResultArt pair={pair} names={names} />
-    <div className={styles.signals}>
-      <div className={styles.signal}><h3>✦ 잘 통하는 포인트</h3><strong>{story.matches[0]?.title ?? '우리의 공통점은 알아가는 중'}</strong><p>{story.matches[0]?.tip ?? '지금 정보만으로 공통점을 정하기 어려워요. 좋아하는 것부터 하나씩 물어보세요.'}</p>{story.matches[0] && <small>{story.matches[0].source}에서 찾은 대화 힌트</small>}</div>
-      <div className={`${styles.signal} ${styles.difference}`}><h3>↔ 맞춰볼 포인트</h3><strong>{story.differences[0]?.title ?? '눈에 띄는 차이는 아직 없어요'}</strong><p>{story.differences[0]?.tip ?? '차이가 없다는 판정은 아니에요. 서로의 생활 방식을 더 알아봐요.'}</p>{story.differences[0] && <small>{story.differences[0].source}에서 찾은 대화 힌트</small>}</div>
-    </div>
+    <PracticalCompat pair={pair} />
     <button className={`btn ${styles.share}`} type="button" onClick={() => setSharing(true)}>우리 조합 카드 공유하기 ↗</button>
     <p className={styles.note}>캐릭터는 관계의 비유예요. 사주·공개한 MBTI를 참고하며 관계를 판정하지 않아요.</p>
     {sharing && <ChemistryShareSheet pair={pair} onClose={() => setSharing(false)} />}

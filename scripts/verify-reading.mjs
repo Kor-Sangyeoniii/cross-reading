@@ -85,6 +85,15 @@ await page.getByRole('button',{name:/새 메시지가 있는 모임 1개/}).clic
 console.log('check: room');
 await page.getByRole('button',{name:/가상 친구님과 나/}).click();
 await page.getByRole('region',{name:'한눈에 보는 우리 궁합'}).waitFor();
+const practical=page.getByRole('region',{name:'현실적인 조합 해설',exact:true});
+await practical.getByRole('heading',{name:'말이 잘 통해도, 양보까지 자동은 아니에요',exact:true}).waitFor();
+await practical.getByRole('heading',{name:'해결책부터 말하면 위로가 안 될 수 있어요',exact:true}).waitFor();
+const practicalTF=practical.locator('article').filter({has:page.getByRole('heading',{name:'해결책부터 말하면 위로가 안 될 수 있어요',exact:true})});
+await practicalTF.getByText('실제 생활 예시와 파훼법',{exact:true}).click();
+await practicalTF.getByRole('heading',{name:'둘이 해볼 순서',exact:true}).waitFor();
+assert.equal(await practicalTF.locator('ol li').count(),3);
+assert.equal(await page.evaluate(()=>window.__fake.messages.length),1,'reading practical guidance must not send');
+
 await page.locator('[role=tab]').filter({hasText:'대화'}).locator('.badge').waitFor();
 await page.getByRole('tab',{name:/대화/}).click();await page.getByText('가상 첫 메시지',{exact:true}).waitFor();
 console.log('check: local reply and analysis');
@@ -197,5 +206,5 @@ assert.notEqual(await kr.getByRole('heading',{name:/^선택한 대운 ·/}).text
 assert.equal(errors.length,0);
 assert.equal(external,0);
 await known.close();
-console.log(JSON.stringify({passed:['message recommendation and consented analysis fill drafts without sending','deleted message clears analysis source and draft','personal natal details and missing birth time','ten decade cycles and explicit opposite directions','focused day page without unrelated periods','mobile flow click and keyboard','date selection and today','360/390/430px no overflow','profile and compatibility screens','incoming notice outside chat','read clears only on visible chat','message during initial fetch retained','own message excluded','push failure preserves sent message','delete event','connection failure and resync','read storage contains IDs only','background arrival not marked read','blocked sender omitted from messages and notice'],externalRequests:external,pageErrors:errors.length}));
+console.log(JSON.stringify({passed:['real account compatibility shows common practical guidance without sending','message recommendation and consented analysis fill drafts without sending','deleted message clears analysis source and draft','personal natal details and missing birth time','ten decade cycles and explicit opposite directions','focused day page without unrelated periods','mobile flow click and keyboard','date selection and today','360/390/430px no overflow','profile and compatibility screens','incoming notice outside chat','read clears only on visible chat','message during initial fetch retained','own message excluded','push failure preserves sent message','delete event','connection failure and resync','read storage contains IDs only','background arrival not marked read','blocked sender omitted from messages and notice'],externalRequests:external,pageErrors:errors.length}));
 } finally { await browser.close(); }
