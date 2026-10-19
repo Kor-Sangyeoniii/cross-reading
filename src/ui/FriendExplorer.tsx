@@ -1,3 +1,4 @@
+import { PracticalCompat } from './PracticalCompat'
 import { useState } from 'react'
 import { comparePair, type Mbti } from '../core/compat'
 import { computeSaju, seoulToday, type SajuChart } from '../core/saju'
@@ -185,41 +186,13 @@ export function FriendExplorer({
             일간 {chart.dayMaster.label} ↔ {friend.dayMaster.label} · 일지{' '}
             {chart.pillars.day[1]} ↔ {friend.pillars.day[1]}
           </p>
-          <h4>서로 닿는 부분</h4>
-          {result.facts
-            .filter((f) => f.kind === 'match')
-            .map((f, i) => (
-              <p key={i}>{f.text}</p>
-            ))}
-          {!result.facts.some((f) => f.kind === 'match') && (
-            <p>
-              이 규칙에서 두드러진 공통점을 찾지 못했어요. 맞지 않는 관계라는
-              뜻은 아니에요.
-            </p>
-          )}
-          <h4>맞춰볼 부분</h4>
-          {result.facts
-            .filter((f) => f.kind === 'difference')
-            .map((f, i) => (
-              <p key={i}>{f.text}</p>
-            ))}
-          {!result.facts.some((f) => f.kind === 'difference') && (
-            <p>
-              이 규칙에서 특별한 차이를 찾지 못했어요. 실제 갈등이 없다는 뜻은
-              아니에요.
-            </p>
-          )}
+          <PracticalCompat pair={result} />
           <h4>둘이 직접 물어볼 질문</h4>
           <ul>
             {result.questions.map((q) => (
               <li key={q}>{q}</li>
             ))}
           </ul>
-          {result.notes.map((note) => (
-            <p key={note} className="muted small">
-              {note}
-            </p>
-          ))}
           <p className="muted small">
             전통 사주 비교와 직접 선택한 MBTI를 각각 참고해요.
             관계·호감·상대방의 안전성을 판정하지 않아요. 실제 대화와 행동을 함께

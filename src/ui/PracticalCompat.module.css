@@ -1,0 +1,140 @@
+.report {
+  display: grid;
+  gap: 18px;
+  margin: 22px 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.report p,
+.report li {
+  line-height: 1.85;
+}
+.report h2 {
+  font-size: 24px;
+  line-height: 1.4;
+}
+.report h3 {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.report h4 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: #586357;
+}
+.overview {
+  display: grid;
+  gap: 12px;
+}
+.overview section {
+  padding: 16px;
+  background: #f0f5ed;
+  border: 1px solid #dbe6d8;
+  border-radius: 18px;
+}
+.overview section + section {
+  background: #fff3e7;
+  border-color: #efdbc5;
+}
+.overview h3 {
+  margin: 0 0 10px;
+}
+.overview ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.card {
+  border: 1px solid #ddd8ce;
+  border-radius: 20px;
+  padding: 20px;
+  background: #fff;
+  min-width: 0;
+}
+.card > h3 {
+  margin: 12px 0 18px;
+}
+.tag,
+.hint,
+.notes {
+  font-size: 12px;
+  color: #586057;
+}
+.notes {
+  border-left: 3px solid #b79567;
+  padding-left: 12px;
+}
+.notes p {
+  margin: 4px 0;
+}
+.good,
+.bad {
+  border-left: 3px solid #6e9976;
+  padding-left: 12px;
+  margin: 16px 0;
+}
+.bad {
+  border-left-color: #bf794a;
+}
+.good p,
+.bad p {
+  margin: 0;
+}
+.scene {
+  border-top: 1px solid #e8e4dc;
+  padding-top: 14px;
+}
+.scene summary,
+.basis summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 8px 0;
+  min-height: 38px;
+}
+.scene h4 {
+  margin-top: 18px;
+}
+.scene ol {
+  padding-left: 24px;
+}
+.scene li {
+  padding-left: 4px;
+  margin-bottom: 10px;
+}
+.words {
+  display: grid;
+  gap: 10px;
+}
+.words > div {
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8efeb;
+}
+.words > div + div {
+  background: #edf4ec;
+}
+.words p {
+  margin-bottom: 0;
+}
+.basis {
+  font-size: 13px;
+  color: #555d55;
+  margin-top: 12px;
+}
+.footer {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f4f2ed;
+  font-size: 13px;
+}
+.footer h3 {
+  font-size: 15px;
+}
+@media (min-width: 600px) {
+  .overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
